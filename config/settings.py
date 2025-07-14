@@ -27,7 +27,7 @@ SECRET_KEY = "django-insecure-mipdpop=u!sh-3+fy&wq^*_us5yrpw(jgu3$r1l0d8572p_=ey
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['neogenesis.onrender.com']
 
 
 # Application definition
