@@ -1,0 +1,655 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}BHB Game{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Segoe UI', sans-serif;
+            overflow-x: hidden;
+            background-color: transparent;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .dropdown-menu.glass-card {
+            background-color: rgba(0, 0, 0, 0.5);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            border: none;
+            padding: 0.8rem 0;
+            min-width: 200px;
+            min-height: 100px;
+            white-space: normal;
+            word-break: break-word;
+        }
+
+        .dropdown-menu li {
+            margin: 0 !important;
+            padding: 0 !important;
+            list-style: none;                /* ✅ 余計なインデントや記号除去 */
+            display: block;                  /* ✅ list-item → block に */
+        }
+
+        .dropdown-item,
+        .dropdown-menu form button {
+            font-size: 0.95rem;
+            color: #fff;
+            padding: 0.3rem 1rem;            /* ✅ 上下余白コンパクトに */
+            background-color: transparent !important;
+            border: none;
+            width: 100%;
+            text-align: left;
+            line-height: 1.2;
+            display: block;
+        }
+
+        .dropdown-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 0;
+        }
+
+        .cube-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 3;
+            width: 60px;
+            height: 60px;
+            background: rgba(150, 150, 150, 0.4);
+            -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            color: white;
+            font-size: 2rem;
+            text-align: center;
+            line-height: 60px;
+            text-decoration: none;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.15);
+            transition: all 0.2s ease-in-out;
+        }
+
+        .cube-button:hover {
+            background: rgba(0, 0, 0, 0.5);
+            transform: scale(1.1);
+        }
+
+        /* 共通スタイル */
+        #deck-icon, #score-icon {
+            white-space: nowrap;           /* ← 折り返し禁止 */
+            overflow: hidden;
+            position: fixed;
+            right: 2vw;
+            width: 140px;
+            height: 33vh;
+            padding: 0.6rem 1rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: bold;
+            font-family: 'Cinzel', serif;
+            color: #111;
+            background-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 8px rgba(255,255,255,0.2);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out;
+            text-align: center;
+            z-index: 10;
+        }
+
+        /* 📘 役点表ボタン（所持金の下） */
+        #score-icon {
+            top: calc(20vh + 7vh);    /* = 28vh */
+        }
+
+        /* 🃏 デッキ表示ボタン（さらに下） */
+        #deck-icon {
+            top: calc(20vh + 44vh);   /* = 36vh */
+        }
+
+        #deck-icon:hover,
+        #score-icon:hover {
+            background: rgba(0, 0, 0, 0.5) !important;
+            transform: scale(1.1);
+        }
+
+        /* 共通の hover スタイル（色変更） */
+        .modal-icon-hover {
+            background-color: rgba(100, 100, 100, 0.5) !important;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        #gold-display {
+            position: fixed;
+            top: 20vh;
+            right: 2vw;
+            font-size: 1.3rem;
+            z-index: 9999;
+            color: black;
+        }
+
+
+        .glass-card-guess {
+            background-color: rgba(0, 0, 0, 0.55);
+            -webkit-backdrop-filter: blur(15px);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 10px auto;
+            max-width: 900px;
+            min-height: 200px;
+            max-height: 300px;
+            width: 90%;
+            box-shadow: 0 0 40px rgba(255, 255, 255, 0.12);
+            color: #fff;
+            margin-top: -5px;
+            margin-left: 80px;
+        }
+
+        .glass-card-history {
+            background-color: rgba(0, 0, 0, 0.55);
+            -webkit-backdrop-filter: blur(15px);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 10px auto;
+            max-width: 300px;
+            min-height: 200px;
+            width: 90%;
+            box-shadow: 0 0 40px rgba(255, 255, 255, 0.12);
+            color: #fff;
+            margin-right: 65vw;
+            margin-top: -25vh;
+        }
+
+        .glass-card-deck {
+            background-color: rgba(0, 0, 0, 0.55);
+            -webkit-backdrop-filter: blur(15px);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 10px auto;
+            max-width: 60vw;
+            min-height: 80px;
+            max-height: 300px;
+            width: 90%;                 
+            box-shadow: 0 0 40px rgba(255, 255, 255, 0.12);
+            color: #fff;
+            text-align: center;
+            margin-top: 100px;
+            margin-left: 20vw;
+        }
+
+        h1, h2, h3, h4, h5 {
+            color: #ffffff;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.15);
+        }
+
+        .slot-section {
+            margin-top: 2vh;            /* ヘッダー下の余白 */
+            margin-left: 8vw;           /* メニューとの干渉を避ける左余白 */
+            margin-right: 6vw;          /* 右も左右対称に余白 */
+        }
+
+        /* レスポンシブ対策：スロット崩れを防止 */
+        .slot-box {
+            width: 45%;          /* 2列表示にちょうど良い幅 */
+            max-width: 35vw;
+            min-width: 300px;           /* 縮まりすぎ防止 */
+            padding: 1.5rem;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            font-size: 1.05rem;
+            color: #111;
+            margin: 1rem;
+        }
+
+        .slot-box h5 {
+            font-family: 'Cinzel', serif !important;
+            font-weight: 900 !important;
+            color: #000 !important;
+        }
+
+        .list-group-item {
+            font-size: 1.05rem;
+            font-weight: 500;
+            padding: 1rem;
+            border: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background-color: transparent;
+            color: #fff;
+        }
+
+        input.form-control {
+            font-size: 1.1rem;
+            padding: 0.75rem;
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid #ccc;
+            color: #fff;
+        }
+
+        input.form-control:focus {
+            outline: none;
+            box-shadow: 0 0 5px rgba(0, 200, 255, 0.5);
+        }
+
+        button.btn {
+            font-size: 1.1rem;
+            padding: 0.6rem 1.2rem;
+            font-weight: 600;
+        }
+
+        .btn-outline-light:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        .deck-click {
+            cursor: pointer;
+        }
+
+        @media (max-width: 1024px) {
+            /* 元の右側表示は非表示 */
+            #gold-display,
+            #deck-icon,
+            #score-icon {
+                display: none !important;
+            }
+
+            #deck-icon-mobile:hover,
+            #score-icon-mobile:hover {
+                background-color: rgba(100, 100, 100, 0.5) !important;
+            }
+
+            .header-icons {
+                display: flex;
+                justify-content: start;          /* 左寄せで ☰ の右に続ける */
+                align-items: center;
+                gap: 2vw;
+                padding: 1vh 2vw;
+                margin-left: 60px;              /* ☰ ボタンの横幅＋余白 */
+                margin-top: 1vh;
+                width: calc(100% - 60px);       /* 残りの横幅を使う */
+                box-sizing: border-box;
+            }
+
+            .header-icons > div {
+                flex: 1 1 auto;
+                max-width: 30vw;
+                font-size: 0.95rem;
+                padding: 0.4rem 1vw;
+                border-radius: 10px;
+                background-color: rgba(255, 255, 255, 0.1);
+                color: #000;
+                text-align: center;
+                -webkit-backdrop-filter: blur(10px);
+                backdrop-filter: blur(10px);
+                white-space: nowrap;
+            }
+
+            #gold-mobile {
+                font-size: 0.95rem;
+                color: black;
+            }
+
+            .slot-section {
+                margin: 4vh 0;
+                padding: 0 1rem;
+            }
+
+            .row.g-4 {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .slot-box {
+                width: 90%;
+                max-width: 600px;
+                padding: 1rem;
+                margin-bottom: 1rem;
+                font-size: 0.95rem;
+                background-color: rgba(255, 255, 255, 0.05);
+                border-radius: 12px;
+                margin-left: 3vw; /* 左側の余白 */
+            }
+
+            .slot-box h5 {
+                font-size: 1.05rem;
+                color: #000 !important;
+                text-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+            }
+
+            .slot-box ul li {
+                font-size: 0.95rem;
+                line-height: 1.5;
+                word-break: break-word;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dropdown {
+                top: 10px !important;
+                left: 10px !important;
+            }
+
+            .dropdown-toggle {
+                padding: 0.6rem 1rem;
+                font-size: 1.3rem;
+            }
+
+            .dropdown-menu.glass-card {
+                min-width: 180px;
+                font-size: 1rem;
+                padding: 0.6rem 0;
+            }
+
+            .dropdown-item,
+            .dropdown-menu form button {
+                padding: 0.5rem 1rem;
+                font-size: 1.05rem;
+            }
+
+            #deck-icon,
+            #score-icon {
+                width: 150px;
+                right: 10px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="bg"></canvas>
+
+<!--メニューバー-->
+<div class="dropdown" style="position: fixed; top: 20px; left: 20px; z-index: 9999;">
+    <button class="btn btn-outline-light dropdown-toggle text-black bg-light"
+            type="button" id="menuButton" data-bs-toggle="dropdown" aria-expanded="false">
+        ☰
+    </button>
+
+    <ul class="dropdown-menu dropdown-menu-end glass-card" aria-labelledby="menuButton">
+        <li>
+            <a class="dropdown-item" href="{% url 'game_start' %}">⬅ タイトルに戻る</a>
+        </li>
+        <li>
+            <button type="submit" form="resetGameForm" class="dropdown-item">
+                🔄 ゲームをやり直す
+            </button>
+        </li>
+    </ul>
+
+    <form id="resetGameForm" action="{% url 'reset_game' %}" method="post">
+        {% csrf_token %}
+    </form>
+</div>
+
+{% if gold %}
+<div class="header-icons d-lg-none">
+    <div id="gold-mobile">💰 {{ gold }} ドル</div>
+    <div id="deck-icon-mobile">🃏</div>
+    <div id="score-icon-mobile">📘</div>
+</div>
+{% endif %}
+
+<!-- 点数表・デッキ表示 -->
+<div id="score-icon" title="役の点数表" style="background-color: rgba(0, 0, 0, 0);">📘 役の点数表</div>
+<div id="deck-icon" title="デッキを表示">🃏</div>
+
+<audio id="bgm" autoplay loop>
+    <source src="{% static 'audio/mainBGM.mp3' %}" type="audio/mp3">
+    Your browser does not support the audio element.
+</audio>
+
+<!-- スロット -->
+<div class="container slot-section">
+    <div class="row g-4">
+        <div class="col-md-6 slot-box">
+            <h5 class="text-primary">ジョーカースロット</h5>
+            <ul class="list-unstyled">
+                {% for card in joker_cards %}
+                    <li>{{ card.name }}：{{ card.description }}</li>
+                {% empty %}
+                    <li>スロットは空です</li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="col-md-6 slot-box">
+            <h5 class="text-warning">消費スロット</h5>
+            <ul class="list-unstyled">
+                {% for card in consume_cards %}
+                    <li>・{{ card.name }}：{{ card.description }}</li>
+                {% empty %}
+                    <li>スロットは空です</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+
+{% if gold %}
+<div id="gold-display">
+    💰 所持金：{{ gold }} ドル
+</div>
+<div class="container mt-3">
+{% endif %}
+    {% if messages %}
+        <div class="glass-card">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    {% block content %}{% endblock %}
+</div>
+
+<!-- デッキモーダル -->
+<div class="modal fade" id="deckModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content glass-card" style="max-height: 90vh; overflow-y: auto;">
+            <div class="modal-header">
+                <h5 class="modal-title text-light">🔢 デッキ全体</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    {% for card in deck_numbers %}
+                    <div class="col-6 col-sm-4 col-md-2 mb-4">
+                        <div class="p-3 border rounded text-center text-white deck-click"
+                            style="background-color: rgba(255,255,255,0.05);">
+                            <div class="fw-bold fs-3"
+                                style="color: #fff; text-shadow: 0 0 5px #000;">
+                                {{ card.number }}
+                            </div>
+                            <div style="color: #fff; font-size: 0.9rem; text-shadow: 0 0 4px rgba(0,0,0,0.8);">
+                                効果: {{ card.effect|default:"なし" }}<br>
+                                🟥 Red Seal: {{ card.red_seal|yesno:"あり,なし" }}<br>
+                                🟨 Gold Seal: {{ card.gold_seal|yesno:"あり,なし" }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 役の点数表モーダル（2列ペア） -->
+<div class="modal fade" id="scoreModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-md modal-dialog-centered">
+        <div class="modal-content glass-card">
+            <div class="modal-header">
+                <h5 class="modal-title text-light">📘 役の点数表</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-dark table-bordered text-center align-middle">
+                    <thead>
+                        <tr>
+                            <th>役</th><th>点数</th>
+                            <th>役</th><th>点数</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in score_table_rows %}
+                        <tr>
+                            <td>{{ row.0.0 }}</td><td>{{ row.0.1 }}</td>
+                            {% if row|length > 1 %}
+                                <td>{{ row.1.0 }}</td><td>{{ row.1.1 }}</td>
+                            {% else %}
+                                <td colspan="2"></td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.min.js"></script>
+<script>
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById("bg"), alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.position.z = 20;
+
+    const geometry = new THREE.BoxGeometry();
+    const material = new THREE.MeshStandardMaterial({ color: 0xffffff, transparent: true, opacity: 0.4 });
+    const cubes = [];
+
+    for (let i = 0; i < 100; i++) {
+        const cube = new THREE.Mesh(geometry, material);
+        cube.position.set(
+            (Math.random() - 0.5) * 100,
+            (Math.random() - 0.5) * 100,
+            (Math.random() - 0.5) * 100
+        );
+        scene.add(cube);
+        cubes.push(cube);
+    }
+
+    const light = new THREE.DirectionalLight(0xffffff, 1);
+    light.position.set(1, 1, 1);
+    scene.add(light);
+
+    function animate() {
+        requestAnimationFrame(animate);
+        cubes.forEach(cube => {
+            cube.rotation.x += 0.001;
+            cube.rotation.y += 0.001;
+        });
+        camera.position.z -= 0.01;
+        if (camera.position.z < 5) camera.position.z = 20;
+        renderer.render(scene, camera);
+    }
+
+    animate();
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const deckIcon = document.getElementById("deck-icon");
+        const scoreIcon = document.getElementById("score-icon");
+        const deckIconMobile = document.getElementById("deck-icon-mobile");
+        const scoreIconMobile = document.getElementById("score-icon-mobile");
+
+        // 🃏 デッキ表示（PC）
+        if (deckIcon) {
+            deckIcon.addEventListener("click", function () {
+                const modal = new bootstrap.Modal(document.getElementById('deckModal'));
+                modal.show();
+            });
+        }
+
+        // 📘 点数表（PC）
+        if (scoreIcon) {
+            scoreIcon.addEventListener("click", function () {
+                const modal = new bootstrap.Modal(document.getElementById('scoreModal'));
+                modal.show();
+            });
+        }
+
+        // 🃏 デッキ表示（モバイル）
+        if (deckIconMobile) {
+            deckIconMobile.addEventListener("click", function () {
+                const modal = new bootstrap.Modal(document.getElementById('deckModal'));
+                modal.show();
+            });
+
+            deckIconMobile.addEventListener("touchstart", () => {
+                deckIconMobile.classList.add("modal-icon-hover");
+            });
+            deckIconMobile.addEventListener("touchend", () => {
+                setTimeout(() => {
+                    deckIconMobile.classList.remove("modal-icon-hover");
+                }, 300);
+            });
+        }
+
+        // 📘 点数表（モバイル）
+        if (scoreIconMobile) {
+            scoreIconMobile.addEventListener("click", function () {
+                const modal = new bootstrap.Modal(document.getElementById('scoreModal'));
+                modal.show();
+            });
+
+            scoreIconMobile.addEventListener("touchstart", () => {
+                scoreIconMobile.classList.add("modal-icon-hover");
+            });
+            scoreIconMobile.addEventListener("touchend", () => {
+                setTimeout(() => {
+                    scoreIconMobile.classList.remove("modal-icon-hover");
+                }, 300);
+            });
+        }
+
+        // 🔊 BGM 自動再生
+        const bgm = document.getElementById('bgm');
+        if (bgm) {
+            bgm.volume = 0.3;
+            if (localStorage.getItem("bgm_enabled") === "true") {
+                bgm.play().catch(err => {
+                    console.warn("🔇 BGMの自動再生に失敗しました", err);
+                });
+            }
+        }
+    });
+
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+

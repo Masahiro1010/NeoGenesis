@@ -1,0 +1,43 @@
+{% extends "game/base.html" %}
+{% load static %}
+
+{% block title %}スコア集計 - Ante {{ ante_num }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10 col-lg-8">
+
+        <div class="glass-card text-center">
+            <h2 class="text-light mb-4">📊 Ante {{ ante_num }}：スコア集計</h2>
+
+            <!-- 結果一覧 -->
+            <div class="text-start mb-4">
+                <h5 class="text-white">🔎 各予想のスコア</h5>
+                {% if results %}
+                    <ul class="list-group list-group-flush">
+                        {% for r in results %}
+                        <li class="list-group-item bg-transparent text-white">
+                            <strong>{{ r.guess }}</strong> → {{ r.hit }}H {{ r.blow }}B<br>
+                            ・役点：{{ r.yaku_score }} / カード点：{{ r.card_score }} / 合計スコア：{{ r.total_score }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-muted">予想結果が見つかりません。</p>
+                {% endif %}
+            </div>
+
+            <!-- 合計スコア -->
+            <div class="my-4">
+                <h4 class="text-success">🎯 このアンティーの合計スコア：<strong>{{ total_score }}</strong></h4>
+            </div>
+
+            <!-- ショップへ進む -->
+            <form method="get" action="{% url 'shop' ante_num=ante_num %}">
+                <button type="submit" class="btn btn-lg btn-outline-warning">▶ ショップに進む</button>
+            </form>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

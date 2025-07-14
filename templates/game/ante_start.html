@@ -1,0 +1,24 @@
+{% extends "game/base.html" %}
+{% load static %}
+
+{% block title %}アンティー {{ ante_num }} 開始{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10 col-lg-8 text-center">
+
+        <!-- タイトル -->
+        <h2 class="mb-4" style="color: #000; font-family: 'Cinzel', serif; font-weight: 900; margin-top: 140px;">
+            Ante {{ ante_num }} 開始
+        </h2>
+
+        <form method="get" action="{% url 'guess_start' ante_num=ante_num %}" style="position: relative; z-index: 2;">
+            <button type="submit" class="btn btn-outline-dark btn-lg px-5"
+                style="font-family: 'Cinzel', serif; font-weight: 900;">
+                ▶ 予想を始める
+            </button>
+        </form>
+
+    </div>
+</div>
+{% endblock %}

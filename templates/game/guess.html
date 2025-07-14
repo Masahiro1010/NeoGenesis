@@ -1,0 +1,132 @@
+{% extends "game/base.html" %}
+{% load static %}
+
+{% block title %}予想入力 - Ante {{ ante_num }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10 col-lg-8">
+
+        <div class="glass-card-guess text-center">
+            <h2 class="text-light mb-4">🎯 Ante {{ ante_num }}：予想入力</h2>
+
+            <!-- 入力フォーム -->
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3 text-start">
+                    <label for="guessInput" class="form-label text-white fw-bold">🔢 予想数字（デッキからクリック）</label>
+                    <input type="text" id="guessInput" name="guess" class="form-control bg-transparent text-white border-light" readonly maxlength="4">
+                    <input type="hidden" name="indexes" id="guessIndexes">
+                </div>
+
+                <div class="mb-3">
+                    <button type="button" class="btn btn-outline-warning me-2" onclick="removeLast()">1文字削除</button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="clearInput()">クリア</button>
+                </div>
+
+                <button type="submit" class="btn btn-outline-light px-4">🎯 予想する</button>
+            </form>
+        </div>
+
+        <!-- アイテムカード使用 -->
+        {% with item_cards=consume_cards %}
+        {% if item_cards %}
+        <div class="glass-card">
+            <h5 class="text-white mb-3">🧪 使用可能なアイテムカード</h5>
+            <ul class="list-group list-group-flush">
+                {% for card in item_cards %}
+                    {% if card.kind == 'item' %}
+                    <li class="list-group-item bg-transparent text-white d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>{{ card.name }}</strong><br>
+                            <small class="text-muted">{{ card.description }}</small>
+                        </div>
+                        <form method="post" action="{% url 'use_item_card' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="code" value="{{ card.code }}">
+                            <button type="submit" class="btn btn-sm btn-outline-success">使用</button>
+                        </form>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <!-- 予想履歴 -->
+        <div class="glass-card-history">
+            <h5 class="text-white mb-3">📜 これまでの予想</h5>
+            {% if results %}
+                <ul class="list-group list-group-flush">
+                    {% for r in results %}
+                        <li class="list-group-item bg-transparent text-white">
+                            <strong>{{ r.guess }}</strong> → {{ r.hit }}H {{ r.blow }}B<br>
+                            <small>・役点：{{ r.yaku_score }} / カード点：{{ r.card_score }} / 合計：{{ r.total_score }}</small>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="text-muted">まだ予想がありません。</p>
+            {% endif %}
+        </div>
+
+    </div>
+    <!-- 🔢 選択用デッキ一覧（このページ専用） -->
+    <div class="glass-card-deck">
+        <h5 class="text-white text-center mb-4">🔢 デッキから数字を選んでください</h5>
+        <div class="row">
+            {% for card in deck_numbers %}
+                <div class="col-6 col-sm-4 col-md-2 mb-4">
+                    <div class="p-3 border rounded text-center text-white deck-click"
+                        style="background-color: rgba(255,255,255,0.05); cursor: pointer;"
+                        data-number="{{ card.number }}"
+                        data-index="{{ forloop.counter0 }}">
+                        <div class="fw-bold fs-3"
+                            style="color: #fff; text-shadow: 0 0 5px #000;">
+                            {{ card.number }}
+                        </div>
+                        <div style="color: #fff; font-size: 0.9rem; text-shadow: 0 0 4px rgba(0,0,0,0.8);">
+                            効果: {{ card.effect|default:"なし" }}<br>
+                            🟥 Red Seal: {{ card.red_seal|yesno:"あり,なし" }}<br>
+                            🟨 Gold Seal: {{ card.gold_seal|yesno:"あり,なし" }}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+</div>
+
+<!-- JSで入力処理 -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const input = document.getElementById("guessInput");
+        const indexInput = document.getElementById("guessIndexes");
+        const deckElements = document.querySelectorAll(".deck-click");
+
+        deckElements.forEach(elem => {
+            elem.addEventListener("click", () => {
+                const number = elem.dataset.number;
+                const index = elem.dataset.index;
+
+                if (input && input.value.length < 4 && !input.value.includes(number)) {
+                    input.value += number;
+                    indexInput.value += index;
+                }
+            });
+        });
+
+        window.removeLast = function () {
+            if (input.value.length > 0) input.value = input.value.slice(0, -1);
+            if (indexInput.value.length > 0) indexInput.value = indexInput.value.slice(0, -1);
+        };
+
+        window.clearInput = function () {
+            input.value = "";
+            indexInput.value = "";
+        };
+    });
+</script>
+{% endblock %}
