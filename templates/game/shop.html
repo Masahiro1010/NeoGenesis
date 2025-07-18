@@ -7,18 +7,18 @@
 <div class="row justify-content-center">
     <div class="col-md-10 col-lg-8">
 
-        <div class="glass-card text-center">
-            <h2 class="text-light mb-4">🛒 ショップ</h2>
+        <div class="glass-card text-center" style="margin-top: 22vh; background-color: white;">
+            <h2 class="text-dark mb-4" style="font-family: 'Cinzel', serif !important;">ショップ</h2>
 
             <!-- 強化カード -->
             {% with enhancement_cards=consume_cards %}
             {% if enhancement_cards %}
             <div class="mb-4 text-start">
-                <h5 class="text-white">🎴 使用可能な強化カード</h5>
+                <h5 class="text-black">使用可能な強化カード</h5>
                 <ul class="list-group list-group-flush">
                     {% for card in enhancement_cards %}
                         {% if card.kind == 'tarot' or card.kind == 'spectral' %}
-                        <li class="list-group-item bg-transparent text-white d-flex justify-content-between align-items-center">
+                        <li class="list-group-item bg-transparent text-dark d-flex justify-content-between align-items-center">
                             <div>
                                 <strong>{{ card.name }}</strong><br>
                                 <small class="text-muted">{{ card.description }}</small>
@@ -37,24 +37,24 @@
             {% endwith %}
 
             <!-- 所持金 -->
-            <div class="mb-4 fs-5 text-success">
-                💰 所持金：<strong>{{ gold }}</strong> ドル
+            <div class="mb-4 fs-5 text-success" style="font-family: 'Cinzel', serif !important;">
+                所持金：<strong>{{ gold }}</strong> ドル
             </div>
 
             <!-- ランダムカード -->
             <div class="mb-5 text-start">
-                <h5 class="text-white mb-3">🎴 ランダムカード（各1枚）</h5>
+                <h5 class="text-black mb-3" style="font-family: 'Cinzel', serif !important;">ランダムカード（各1枚）</h5>
                 <div class="row">
                     {% for card in random_cards %}
                     <div class="col-md-6 mb-3">
-                        <div class="glass-card h-100">
-                            <h5 class="text-light">{{ card.name }}</h5>
+                        <div class="glass-card h-100" style="font-family: 'Cinzel', serif !important;">
+                            <h5 class="text-dark">{{ card.name }}</h5>
                             <p class="text-muted mb-1">{{ card.kind }} / {{ card.price }}ドル</p>
-                            <p class="text-white">{{ card.description }}</p>
+                            <p class="text-black">{{ card.description }}</p>
                             <form method="post" action="{% url 'buy_card' %}">
                                 {% csrf_token %}
                                 <input type="hidden" name="code" value="{{ card.code }}">
-                                <button type="submit" class="btn btn-sm btn-outline-light">購入する</button>
+                                <button type="submit" class="btn btn-sm btn-outline-dark">購入する</button>
                             </form>
                         </div>
                     </div>
@@ -64,19 +64,19 @@
 
             <!-- パック購入 -->
             <div class="mb-5 text-start">
-                <h5 class="text-white mb-3">🃏 パック（各種からランダム）</h5>
+                <h5 class="text-black mb-3" style="font-family: 'Cinzel', serif !important;">パック（各種からランダム）</h5>
                 {% for pack in pack_options %}
                 <div class="glass-card mb-4">
-                    <h6 class="text-light">
+                    <h6 class="text-dark" style="font-family: 'Cinzel', serif !important;">
                         {{ pack.kind|title }} パック（{{ pack.price }}ドル／{{ pack.select_count }}枚選択）
                     </h6>
                     <form method="post" action="{% url 'buy_pack' %}">
                         {% csrf_token %}
                         <input type="hidden" name="kind" value="{{ pack.kind }}">
                         <input type="hidden" name="price" value="{{ pack.price }}">
-                        <div class="form-check mb-2 text-white">
+                        <div class="form-check mb-2 text-black">
                             {% for card in pack.cards %}
-                            <div class="form-check">
+                            <div class="form-check" style="font-family: 'Cinzel', serif !important;">
                                 <input class="form-check-input" type="checkbox" name="selected_codes" value="{{ card.code }}" id="{{ card.code }}">
                                 <label class="form-check-label" for="{{ card.code }}">
                                     {{ card.name }}：{{ card.description }}
@@ -84,7 +84,7 @@
                             </div>
                             {% endfor %}
                         </div>
-                        <button type="submit" class="btn btn-sm btn-outline-success">このパックを購入する</button>
+                        <button type="submit" class="btn btn-sm btn-outline-success" style="font-family: 'Cinzel', serif !important;">このパックを購入する</button>
                     </form>
                 </div>
                 {% endfor %}
@@ -93,7 +93,7 @@
             <!-- 次のアンティへ -->
             <div class="text-center">
                 <form method="get" action="{% url 'ante_start' ante_num=next_ante_num %}">
-                    <button type="submit" class="btn btn-lg btn-outline-warning">▶ 次のアンティーへ</button>
+                    <button type="submit" class="btn btn-lg btn-dark custom-next-btn" style="margin-bottom: 8vh; font-family: 'Cinzel', serif !important;">▶ 次のアンティーへ</button>
                 </form>
             </div>
 

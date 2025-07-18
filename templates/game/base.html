@@ -59,7 +59,7 @@
             position: fixed;
             top: 0;
             left: 0;
-            z-index: 0;
+            z-index: -1 !important;
         }
 
         .cube-button {
@@ -132,9 +132,11 @@
         }
 
         /* 共通の hover スタイル（色変更） */
-        .modal-icon-hover {
-            background-color: rgba(100, 100, 100, 0.5) !important;
-            transition: background-color 0.2s ease-in-out;
+        .deck-click.modal-icon-hover {
+            background-color: rgba(0, 0, 0, 0.5) !important;
+            transform: scale(1.1);
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+            transition: all 0.2s ease-in-out;
         }
 
         #gold-display {
@@ -146,73 +148,107 @@
             color: black;
         }
 
-
         .glass-card-guess {
-            background-color: rgba(0, 0, 0, 0.55);
-            -webkit-backdrop-filter: blur(15px);
-            backdrop-filter: blur(15px);
-            border-radius: 20px;
-            padding: 2rem;
-            margin: 10px auto;
-            max-width: 900px;
-            min-height: 200px;
-            max-height: 300px;
+            position: static;
+            margin: 22vh auto;
+            max-width: 45vw;
             width: 90%;
-            box-shadow: 0 0 40px rgba(255, 255, 255, 0.12);
+            background-color: white !important;
+            -webkit-backdrop-filter: blur(2.5vh);
+            backdrop-filter: blur(2.5vh);
+            border-radius: 2vh;
+            padding: 4vh 3vw;
+            min-height: 25vh;
+            box-shadow: 0 0 3vh rgba(255, 255, 255, 0.12);
             color: #fff;
-            margin-top: -5px;
-            margin-left: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .guess-display-box {
+            font-size: 4.5vh;       /* ← さらに大きく強調 */
+            letter-spacing: 1vw;    /* 数字間に余裕 */
+            min-height: 10vh;       /* 縦のゆとり */
+            width: 100%;
+            padding: 2vh 2vw;
+            border-radius: 1vh;
+            border: 0.3vh solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            text-shadow: 0 0 1vh rgba(0, 0, 0, 0.5);
+            background-color: rgba(255, 255, 255, 0.1);
+            color: black;
+        }
+
+        .custom-btn {
+            font-size: 1.8vh;
+            padding: 0.8vh 2vw;
+            white-space: nowrap;
+            border-radius: 1vh;
         }
 
         .glass-card-history {
-            background-color: rgba(0, 0, 0, 0.55);
+            position: fixed;
+            top: 25vh;
+            left: 3vw;
+            width: 24vw;
+            max-width: 300px;
+            height: calc(100vh - 38vh);  /* ← 下2vh余白を確保 */
+            overflow-y: auto;
+            background-color: white !important;
             -webkit-backdrop-filter: blur(15px);
             backdrop-filter: blur(15px);
             border-radius: 20px;
             padding: 2rem;
-            margin: 10px auto;
-            max-width: 300px;
-            min-height: 200px;
-            width: 90%;
             box-shadow: 0 0 40px rgba(255, 255, 255, 0.12);
             color: #fff;
-            margin-right: 65vw;
-            margin-top: -25vh;
+            z-index: 10;
         }
 
         .glass-card-deck {
-            background-color: rgba(0, 0, 0, 0.55);
+            background-color: white !important;
             -webkit-backdrop-filter: blur(15px);
             backdrop-filter: blur(15px);
             border-radius: 20px;
             padding: 2rem;
-            margin: 10px auto;
-            max-width: 60vw;
-            min-height: 80px;
-            max-height: 300px;
-            width: 90%;                 
+            margin: 0 auto;
+            max-width: 45vw;       /* ← 予想欄と一致 */
+            width: 90%;
             box-shadow: 0 0 40px rgba(255, 255, 255, 0.12);
             color: #fff;
             text-align: center;
-            margin-top: 100px;
-            margin-left: 20vw;
+            padding: 4vh 3vw;
+            margin-top: -20vh
         }
 
         h1, h2, h3, h4, h5 {
-            color: #ffffff;
+            color: #111;
             text-shadow: 0 0 8px rgba(255, 255, 255, 0.15);
         }
 
         .slot-section {
-            margin-top: 2vh;            /* ヘッダー下の余白 */
-            margin-left: 8vw;           /* メニューとの干渉を避ける左余白 */
-            margin-right: 6vw;          /* 右も左右対称に余白 */
+            position: fixed;           /* ← スクロールに追従しないように固定 */
+            top: 1vh;                 /* ← 位置を調整（必要に応じて変更） */
+            left: 50%;
+            transform: translateX(-60%); /* ← 横中央寄せ */
+            z-index: 900;
+            width: 80vw;               /* 幅は好みに応じて */
+            max-width: 1000px;
+            background-color: rgba(255,255,255,0.05); /* オプション：背景色つけて視認性アップ */
+            padding: 2vh 2vw;
+            border-radius: 2vh;
+            box-shadow: 0 0 3vh rgba(255, 255, 255, 0.1);
         }
 
         /* レスポンシブ対策：スロット崩れを防止 */
         .slot-box {
+            background-color: white !important; /* ✅ 白背景 */
+            z-index: 1;
             width: 45%;          /* 2列表示にちょうど良い幅 */
-            max-width: 35vw;
+            max-width: 60vw;
             min-width: 300px;           /* 縮まりすぎ防止 */
             padding: 1.5rem;
             background-color: rgba(255, 255, 255, 0.05);
@@ -228,6 +264,12 @@
             color: #000 !important;
         }
 
+        .slot-box ul li {
+            font-family: 'Cinzel', serif !important;
+            font-size: 0.90rem; /* もともと大きめなら 0.9rem に */
+            white-space: nowrap; /* ← 改行を防ぐ！ */
+        }
+
         .list-group-item {
             font-size: 1.05rem;
             font-weight: 500;
@@ -235,7 +277,30 @@
             border: none;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             background-color: transparent;
-            color: #fff;
+            color: #111;
+        }
+
+        .glass-card-history .list-group-item {
+            font-size: 1rem;  /* 少し小さく */
+            font-family: 'Segoe UI', sans-serif;
+            color: black;
+            background-color: rgba(255, 255, 255, 0.08);  /* 薄めに調整 */
+            border: none;
+            border-radius: 0.4rem;
+            margin-bottom: 0.4rem;
+            padding: 0.5rem 0.8rem;
+            text-shadow: 0 0 0.5vh rgba(0, 0, 0, 0.4);  /* 控えめな影 */
+        }
+
+        .glass-card-history strong {
+            font-size: 1.15rem;  /* 少しだけ大きくして強調 */
+            color: black;
+        }
+
+        .glass-card-history small {
+            font-size: 0.75rem;  /* 小さめ */
+            color: black;
+            opacity: 0.7;        /* 薄め */
         }
 
         input.form-control {
@@ -243,7 +308,7 @@
             padding: 0.75rem;
             background-color: rgba(255, 255, 255, 0.05);
             border: 1px solid #ccc;
-            color: #fff;
+            color: #111;
         }
 
         input.form-control:focus {
@@ -264,6 +329,47 @@
 
         .deck-click {
             cursor: pointer;
+        }
+
+        .glass-card-deck .deck-click {
+            padding: 1rem 0.5rem;     /* ← 縦横の内側余白を小さく */
+            font-size: 0.9rem;        /* ← 全体の文字サイズをやや小さく */
+            border-radius: 10px;
+        }
+
+        .glass-card-deck .deck-click .fs-3 {
+            font-size: 1.4rem !important;  /* ← 数字部分（元はfs-3＝1.75rem） */
+        }
+
+        .glass-card-deck .deck-click div {
+            font-size: 0.8rem;  /* ← 効果・Sealのテキスト部分 */
+            line-height: 1.3;
+        }
+
+        .deck-card-box {
+            width: 20%;              /* ← 5列表示 */
+            padding: 0.5rem;
+            box-sizing: border-box;
+        }
+
+        .custom-next-btn {
+            transition: all 0.3s ease-in-out;
+        }
+
+        .custom-next-btn:hover {
+            background-color: #fff !important;
+            color: #000 !important;
+            transform: scale(1.05);
+            border: 1px solid #000;
+        }
+
+        @media (hover: hover) and (pointer: fine) {
+            .deck-click:hover {
+                background-color: rgba(0, 0, 0, 0.5);
+                transform: scale(1.1);
+                transition: all 0.2s ease-in-out;
+                box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+            }
         }
 
         @media (max-width: 1024px) {
@@ -343,36 +449,13 @@
                 line-height: 1.5;
                 word-break: break-word;
             }
-        }
 
-        @media (max-width: 768px) {
-            .dropdown {
-                top: 10px !important;
-                left: 10px !important;
-            }
-
-            .dropdown-toggle {
-                padding: 0.6rem 1rem;
-                font-size: 1.3rem;
-            }
-
-            .dropdown-menu.glass-card {
-                min-width: 180px;
-                font-size: 1rem;
-                padding: 0.6rem 0;
-            }
-
-            .dropdown-item,
-            .dropdown-menu form button {
-                padding: 0.5rem 1rem;
-                font-size: 1.05rem;
-            }
-
-            #deck-icon,
-            #score-icon {
-                width: 150px;
-                right: 10px;
-                font-size: 1rem;
+            .glass-card-history {
+                position: static;
+                width: 90%;
+                max-width: 100%;
+                height: auto;
+                margin: 0 auto 2vh auto;
             }
         }
     </style>
@@ -388,13 +471,13 @@
         ☰
     </button>
 
-    <ul class="dropdown-menu dropdown-menu-end glass-card" aria-labelledby="menuButton">
+    <ul class="dropdown-menu dropdown-menu-end glass-card" style="font-family: 'Cinzel', serif !important;" aria-labelledby="menuButton">
         <li>
-            <a class="dropdown-item" href="{% url 'game_start' %}">⬅ タイトルに戻る</a>
+            <a class="dropdown-item" href="{% url 'game_start' %}">タイトルに戻る</a>
         </li>
         <li>
             <button type="submit" form="resetGameForm" class="dropdown-item">
-                🔄 ゲームをやり直す
+                ゲームをやり直す
             </button>
         </li>
     </ul>
@@ -406,15 +489,15 @@
 
 {% if gold %}
 <div class="header-icons d-lg-none">
-    <div id="gold-mobile">💰 {{ gold }} ドル</div>
+    <div id="gold-mobile">{{ gold }} ドル</div>
     <div id="deck-icon-mobile">🃏</div>
     <div id="score-icon-mobile">📘</div>
 </div>
 {% endif %}
 
 <!-- 点数表・デッキ表示 -->
-<div id="score-icon" title="役の点数表" style="background-color: rgba(0, 0, 0, 0);">📘 役の点数表</div>
-<div id="deck-icon" title="デッキを表示">🃏</div>
+<div id="score-icon" title="役の点数表" style="background-color: rgba(0, 0, 0, 0);">役の点数表</div>
+<div id="deck-icon" title="デッキを表示">自分のデッキ</div>
 
 <audio id="bgm" autoplay loop>
     <source src="{% static 'audio/mainBGM.mp3' %}" type="audio/mp3">
@@ -448,13 +531,13 @@
 </div>
 
 {% if gold %}
-<div id="gold-display">
-    💰 所持金：{{ gold }} ドル
+<div id="gold-display" style="font-family: 'Cinzel', serif !important;">
+    所持金：{{ gold }} ドル
 </div>
-<div class="container mt-3">
 {% endif %}
+<div class="container mt-3">
     {% if messages %}
-        <div class="glass-card">
+        <div class="glass-card" style="margin-top: 20vh;">
             {% for message in messages %}
                 <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
                     {{ message }}
@@ -471,23 +554,22 @@
     <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content glass-card" style="max-height: 90vh; overflow-y: auto;">
             <div class="modal-header">
-                <h5 class="modal-title text-light">🔢 デッキ全体</h5>
+                <h5 class="modal-title text-light">デッキ全体</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
             </div>
             <div class="modal-body">
                 <div class="row">
                     {% for card in deck_numbers %}
                     <div class="col-6 col-sm-4 col-md-2 mb-4">
-                        <div class="p-3 border rounded text-center text-white deck-click"
-                            style="background-color: rgba(255,255,255,0.05);">
+                        <div class="p-3 border rounded text-center text-white deck-click">
                             <div class="fw-bold fs-3"
-                                style="color: #fff; text-shadow: 0 0 5px #000;">
+                                style="text-shadow: 0 0 5px #000;">
                                 {{ card.number }}
                             </div>
                             <div style="color: #fff; font-size: 0.9rem; text-shadow: 0 0 4px rgba(0,0,0,0.8);">
                                 効果: {{ card.effect|default:"なし" }}<br>
-                                🟥 Red Seal: {{ card.red_seal|yesno:"あり,なし" }}<br>
-                                🟨 Gold Seal: {{ card.gold_seal|yesno:"あり,なし" }}
+                                🟥 : {{ card.red_seal|yesno:"あり,なし" }}<br>
+                                🟨 : {{ card.gold_seal|yesno:"あり,なし" }}
                             </div>
                         </div>
                     </div>
@@ -503,7 +585,7 @@
     <div class="modal-dialog modal-md modal-dialog-centered">
         <div class="modal-content glass-card">
             <div class="modal-header">
-                <h5 class="modal-title text-light">📘 役の点数表</h5>
+                <h5 class="modal-title text-light">役の点数表</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
             </div>
             <div class="modal-body">
@@ -579,22 +661,6 @@
         const deckIconMobile = document.getElementById("deck-icon-mobile");
         const scoreIconMobile = document.getElementById("score-icon-mobile");
 
-        // 🃏 デッキ表示（PC）
-        if (deckIcon) {
-            deckIcon.addEventListener("click", function () {
-                const modal = new bootstrap.Modal(document.getElementById('deckModal'));
-                modal.show();
-            });
-        }
-
-        // 📘 点数表（PC）
-        if (scoreIcon) {
-            scoreIcon.addEventListener("click", function () {
-                const modal = new bootstrap.Modal(document.getElementById('scoreModal'));
-                modal.show();
-            });
-        }
-
         // 🃏 デッキ表示（モバイル）
         if (deckIconMobile) {
             deckIconMobile.addEventListener("click", function () {
@@ -626,6 +692,37 @@
                 setTimeout(() => {
                     scoreIconMobile.classList.remove("modal-icon-hover");
                 }, 300);
+            });
+        }
+
+        // 🃏 デッキ表示（PC）
+        if (deckIcon) {
+            deckIcon.addEventListener("click", function () {
+                const modal = new bootstrap.Modal(document.getElementById('deckModal'));
+                modal.show();
+            });
+        }
+
+        // 📘 点数表（PC）
+        if (scoreIcon) {
+            scoreIcon.addEventListener("click", function () {
+                const modal = new bootstrap.Modal(document.getElementById('scoreModal'));
+                modal.show();
+            });
+        }
+
+        const isMobile = window.matchMedia("(hover: none) and (pointer: coarse)").matches;
+
+        if (isMobile) {
+            document.querySelectorAll('.deck-click').forEach(elem => {
+                elem.addEventListener("touchstart", () => {
+                    elem.classList.add("modal-icon-hover");
+                });
+                elem.addEventListener("touchend", () => {
+                    setTimeout(() => {
+                        elem.classList.remove("modal-icon-hover");
+                    }, 300);
+                });
             });
         }
 

@@ -5,8 +5,8 @@
 <div class="row justify-content-center">
     <div class="col-md-8 col-lg-6">
 
-        <div class="glass-card text-center">
-            <h2 class="text-light mb-4">🎯 強化する数字を選んでください</h2>
+        <div class="glass-card text-center" style="margin-top: 35vh; color: black;">
+            <h2 class="text-dark mb-4">🎯 強化する数字を選んでください</h2>
 
             <p class="text-muted mb-4">強化したい数字をデッキからクリックしてください。</p>
 
@@ -15,6 +15,24 @@
                 <input type="hidden" name="number" id="number-input">
                 <input type="hidden" name="index" id="index-input">
             </form>
+        </div>
+
+        <div class="row">
+            {% for card in deck_numbers %}
+                <div class="col-6 col-sm-4 col-md-2 mb-4">
+                    <div class="deck-click p-3 border rounded text-center text-dark"
+                        data-number="{{ card.number }}"
+                        data-index="{{ forloop.counter0 }}"
+                        style="cursor: pointer; background-color: rgba(255,255,255,0.9);">
+                        <div class="fw-bold fs-3">{{ card.number }}</div>
+                        <div style="font-size: 0.85rem;">
+                            効果: {{ card.effect|default:"なし" }}<br>
+                            🟥：{{ card.red_seal|yesno:"あり,なし" }}<br>
+                            🟨：{{ card.gold_seal|yesno:"あり,なし" }}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
         </div>
 
     </div>

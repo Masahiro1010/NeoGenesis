@@ -14,6 +14,8 @@ from django.contrib import messages
 from django.views.decorators.http import require_POST
 from .plus import PlusCardScore
 from .effects import EffectsApply
+from django.views import View
+from django.shortcuts import render
 
 class GameSessionCreateView(TemplateView):
     template_name = 'game/start.html'
@@ -76,13 +78,15 @@ class AnteStartView(TemplateView):
 
         return self.render_to_response(context)
     
-class GuessView(FormView):
+class GuessView(View):
     template_name = 'game/guess.html'
     form_class = GuessForm
 
-    def form_valid(self, form):
+    def post(self, request, *args, **kwargs):
+        print("POST受信")
+        print("guess:", request.POST.get('guess'))
         ante_num = str(self.kwargs['ante_num'])
-        guess = form.cleaned_data['guess']
+        guess = request.POST.get('guess')
         indexes = self.request.POST.get('indexes')      # 例: '0246'
         index_list = list(indexes) if indexes else []   # → ['0', '2', '4', '6']
         request = self.request
@@ -92,10 +96,11 @@ class GuessView(FormView):
         # 問題の取得
         problem_dict = request.session.get('problems', {})
         problem = problem_dict.get(ante_num)
-
+        """
         if not problem:
             form.add_error(None, "問題が見つかりません。")
             return self.form_invalid(form)
+        """
 
         # Hit & Blow 判定
         hit = 0
@@ -185,12 +190,13 @@ class GuessView(FormView):
 
         return redirect('guess_start', ante_num=self.kwargs['ante_num'])
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        ante_num = str(self.kwargs['ante_num'])
-        context['ante_num'] = ante_num
-        context['results'] = self.request.session.get('results', {}).get(ante_num, [])
-        return context
+    def get(self, request, *args, **kwargs):
+        ante_num = str(kwargs['ante_num'])
+        results = request.session.get('results', {}).get(ante_num, [])
+        return render(request, 'game/guess.html', {
+            'ante_num': ante_num,
+            'results': results
+        })
 
 @require_POST
 def reset_game(request):
@@ -394,6 +400,14 @@ def _use_card_common(request, card_type, redirect_name, game=None, code=None):
 class SelectNumberView(FormView):
     template_name = 'game/select_number.html'
     form_class = NumberChoiceForm
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        request = self.request
+        game_id = request.session.get("game_id")
+        game = get_object_or_404(GameSession, id=game_id)
+
+        context["deck_numbers"] = game.deck_numbers
+        return context
 
     def form_valid(self, form):
         number = form.cleaned_data['number']

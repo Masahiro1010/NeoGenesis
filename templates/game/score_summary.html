@@ -7,34 +7,34 @@
 <div class="row justify-content-center">
     <div class="col-md-10 col-lg-8">
 
-        <div class="glass-card text-center">
-            <h2 class="text-light mb-4">📊 Ante {{ ante_num }}：スコア集計</h2>
+        <div class="glass-card text-center" style="margin-top: 17vh; margin-top: 17vh; background-color: white;">
+            <h2 class="text-dark mb-4"style="font-family: 'Cinzel', serif !important;">Ante {{ ante_num }}：スコア集計</h2>
 
             <!-- 結果一覧 -->
-            <div class="text-start mb-4">
-                <h5 class="text-white">🔎 各予想のスコア</h5>
+            <div class="text-start mb-4" style="font-family: 'Cinzel', serif !important;">
+                <h5 class="text-black">各予想のスコア</h5>
                 {% if results %}
                     <ul class="list-group list-group-flush">
                         {% for r in results %}
-                        <li class="list-group-item bg-transparent text-white">
-                            <strong>{{ r.guess }}</strong> → {{ r.hit }}H {{ r.blow }}B<br>
-                            ・役点：{{ r.yaku_score }} / カード点：{{ r.card_score }} / 合計スコア：{{ r.total_score }}
+                        <li class="list-group-item bg-transparent text-black">
+                            <strong>・{{ r.guess }}</strong> → {{ r.hit }}H {{ r.blow }}B<br>
+                            役点：{{ r.yaku_score }} / カード点：{{ r.card_score }} / 合計スコア：{{ r.total_score }}
                         </li>
                         {% endfor %}
                     </ul>
                 {% else %}
-                    <p class="text-muted">予想結果が見つかりません。</p>
+                    <p class="text-muted"style="font-family: 'Cinzel', serif !important;">予想結果が見つかりません。</p>
                 {% endif %}
             </div>
 
             <!-- 合計スコア -->
             <div class="my-4">
-                <h4 class="text-success">🎯 このアンティーの合計スコア：<strong>{{ total_score }}</strong></h4>
+                <h4 class="text-success"style="font-family: 'Cinzel', serif !important;">このアンティーの合計スコア：<strong>{{ total_score }}</strong></h4>
             </div>
 
             <!-- ショップへ進む -->
             <form method="get" action="{% url 'shop' ante_num=ante_num %}">
-                <button type="submit" class="btn btn-lg btn-outline-warning">▶ ショップに進む</button>
+                <button type="submit" class="btn btn-lg btn-dark custom-next-btn" style="margin-bottom: 8vh; font-family: 'Cinzel', serif !important;">▶ ショップに進む</button>
             </form>
 
         </div>
