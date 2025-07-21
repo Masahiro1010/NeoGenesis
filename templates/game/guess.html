@@ -58,7 +58,7 @@
         <!-- アイテムカード使用 -->
         {% with item_cards=consume_cards %}
         {% if item_cards %}
-        <div class="glass-card">
+        <div class="glass-card" style="max-width: 45vw; width: 90%; margin: 5vh auto;">
             <h5 class="text-black mb-3">使用可能なアイテムカード</h5>
             <ul class="list-group list-group-flush">
                 {% for card in item_cards %}
