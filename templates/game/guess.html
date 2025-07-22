@@ -58,7 +58,7 @@
         <!-- アイテムカード使用 -->
         {% with item_cards=consume_cards %}
         {% if item_cards %}
-        <div class="glass-card" style="max-width: 45vw; width: 90%; margin: 5vh auto;">
+        <div class="glass-card" style="max-width: 45vw; width: 90%; margin: 5vh auto; font-family: 'Cinzel', serif !important; background-color: white;">
             <h5 class="text-black mb-3">使用可能なアイテムカード</h5>
             <ul class="list-group list-group-flush">
                 {% for card in item_cards %}
@@ -97,7 +97,7 @@
                     {% endfor %}
                 </ul>
             {% else %}
-                <p class="text-muted">まだ予想がありません。</p>
+                <p class="text-muted" style="font-family: 'Cinzel', serif !important;">まだ予想がありません。</p>
             {% endif %}
         </div>
     </div>

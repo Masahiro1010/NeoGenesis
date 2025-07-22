@@ -7,15 +7,15 @@
 <div class="row justify-content-center">
     <div class="col-md-10 col-lg-8">
 
-        <div class="glass-card text-center" style="margin-top: 22vh; background-color: white;">
+        <div class="glass-card text-center" style="margin-top: 18vh; background-color: white;">
             <h2 class="text-dark mb-4" style="font-family: 'Cinzel', serif !important;">ショップ</h2>
 
             <!-- 強化カード -->
             {% with enhancement_cards=consume_cards %}
             {% if enhancement_cards %}
             <div class="mb-4 text-start">
-                <h5 class="text-black">使用可能な強化カード</h5>
-                <ul class="list-group list-group-flush">
+                <h5 class="text-black" style="font-family: 'Cinzel', serif !important;">使用可能な強化カード</h5>
+                <ul class="list-group list-group-flush" style="font-family: 'Cinzel', serif !important;">
                     {% for card in enhancement_cards %}
                         {% if card.kind == 'tarot' or card.kind == 'spectral' %}
                         <li class="list-group-item bg-transparent text-dark d-flex justify-content-between align-items-center">
@@ -44,6 +44,7 @@
             <!-- ランダムカード -->
             <div class="mb-5 text-start">
                 <h5 class="text-black mb-3" style="font-family: 'Cinzel', serif !important;">ランダムカード（各1枚）</h5>
+                <hr class="my-3" style="border-top: 2px solid #000;">
                 <div class="row">
                     {% for card in random_cards %}
                     <div class="col-md-6 mb-3">
@@ -65,6 +66,7 @@
             <!-- パック購入 -->
             <div class="mb-5 text-start">
                 <h5 class="text-black mb-3" style="font-family: 'Cinzel', serif !important;">パック（各種からランダム）</h5>
+                <hr class="my-3" style="border-top: 2px solid #000;">
                 {% for pack in pack_options %}
                 <div class="glass-card mb-4">
                     <h6 class="text-dark" style="font-family: 'Cinzel', serif !important;">
