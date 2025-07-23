@@ -83,8 +83,6 @@ class GuessView(View):
     form_class = GuessForm
 
     def post(self, request, *args, **kwargs):
-        print("POST受信")
-        print("guess:", request.POST.get('guess'))
         ante_num = str(self.kwargs['ante_num'])
         guess = request.POST.get('guess')
         indexes = self.request.POST.get('indexes')      # 例: '0246'
@@ -146,6 +144,7 @@ class GuessView(View):
             game.joker_slots,
             judge_HBN,
             guess,
+            game.deck_numbers,
             ) # ジョーカー効果の適用
         card_score = PlusCardScore.StrongerJudge(
             card_score,
@@ -154,6 +153,7 @@ class GuessView(View):
             index_list,
             game
         )
+        print(problem)
         total_score = yaku_score * card_score
 
         # 結果をセッションに保存
@@ -171,6 +171,7 @@ class GuessView(View):
             'total_score': total_score
         })
         request.session.modified = True
+        game.save()
 
         # 5回目の予想でショップに進む
         if len(request.session['results'][ante_num]) >= 5:
@@ -439,6 +440,15 @@ class SelectNumberView(FormView):
         elif code == "tarot_buff":
             target_card["effect"] = "buff"
             messages.success(request, f"{number} にカード点アップ効果を付与しました！")
+        elif code == "spectral_red":
+            target_card["red_seal"] = True
+            messages.success(request, f"{number} にレッドシールを付与しました！")
+        elif code == "spectral_gold":
+            target_card["gold_seal"] = True
+            messages.success(request, f"{number} にゴールドシールを付与しました！")
+        elif code == "spectral_trim":
+            del game.deck_numbers[index]
+            messages.success(request, f"{number} をデッキから削除しました！")
 
         # カード削除・保存
         if code in game.consume_slots:
