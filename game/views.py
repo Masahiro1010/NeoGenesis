@@ -91,6 +91,10 @@ class GuessView(View):
         game_id = request.session.get("game_id")
         game = get_object_or_404(GameSession, id=game_id)
 
+        if not guess or len(guess) != 4:
+            messages.error(request, "4桁の数字を入力してください。")
+            return redirect("guess_start", ante_num=ante_num)
+
         # 問題の取得
         problem_dict = request.session.get('problems', {})
         problem = problem_dict.get(ante_num)
