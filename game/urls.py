@@ -14,4 +14,5 @@ urlpatterns = [
     path('use_card/tarot/', views.use_tarot_card_view, name='use_tarot_card'),
     path('use_card/spectral/', views.use_spectral_card_view, name='use_spectral_card'),
     path("select_number/", views.SelectNumberView.as_view(), name="select_number"),
+    path("card_select/<int:ante_num>/", views.ItemCardSelectView.as_view(), name="card_select_numbers"),
 ]

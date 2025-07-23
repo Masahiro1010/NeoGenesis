@@ -49,7 +49,6 @@ class GameSession(models.Model):
             self.used_cards = []
         super().save(*args, **kwargs)
 
-
 class Round(models.Model):
     game = models.ForeignKey(GameSession, on_delete=models.CASCADE, related_name='rounds')
     ante_number = models.IntegerField()
@@ -59,7 +58,6 @@ class Round(models.Model):
 
     def __str__(self):
         return f"Ante {self.ante_number} - Game {self.game.id}"
-
 
 class Guess(models.Model):
     round = models.ForeignKey(Round, on_delete=models.CASCADE, related_name='guesses')

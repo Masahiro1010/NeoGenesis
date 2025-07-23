@@ -289,10 +289,15 @@ def buy_card_view(request):
     game.gold -= card.price
 
     if card.kind == "joker":
-        game.joker_slots.append(code)
+        if len(game.joker_slots) >= 3:
+            messages.warning(request, f"スロット上限で {card.name} は登録できませんでした。")
+            return redirect("shop", ante_num=ante_num)
+        else:
+            game.joker_slots.append(code)
     else:
         if len(game.consume_slots) >= 3:
             messages.warning(request, f"スロット上限で {card.name} は登録できませんでした。")
+            return redirect("shop", ante_num=ante_num)
         else:
             game.consume_slots.append(code)
 
@@ -319,7 +324,7 @@ def buy_pack_view(request):
 
     # 選択数をバリデート（パック種別により変動）
     expected_count = 1 if price == 3 else 2
-    if len(selected_codes) != expected_count:
+    if len(selected_codes) > expected_count:
         messages.error(request, f"{expected_count}枚選んでください。")
         return redirect("shop", ante_num=ante_num)
 
@@ -331,20 +336,44 @@ def buy_pack_view(request):
         if not card:
             continue
         if card.kind == "joker":
+            if len(game.joker_slots) >= 3:
+                messages.warning(request, f"スロット上限で {card.name} は登録できませんでした。")
+                return redirect("shop", ante_num=ante_num)
             game.joker_slots.append(code)
         else:
             if len(game.consume_slots) >= 3:
                 messages.warning(request, f"スロット上限で {card.name} は登録できませんでした。")
-                continue
+                return redirect("shop", ante_num=ante_num)
             game.consume_slots.append(code)
 
     game.save()
-    messages.success(request, f"{expected_count}枚を購入しました。")
+    messages.success(request, f"{len(selected_codes)}枚を購入しました。")
     return redirect("shop", ante_num=ante_num)
 
 
 @require_POST
 def use_item_card_view(request):
+    code = request.POST.get("code")
+    game_id = request.session.get("game_id")
+
+    if not code or not game_id:
+        messages.error(request, "セッションまたはコードが無効です。")
+        return redirect("game_start")
+
+    game = get_object_or_404(GameSession, id=game_id)
+
+    # 判定系アイテムなら → 特別な選択画面に遷移
+    if code in ["item_highlow", "item_evenodd"]:
+        if code not in game.consume_slots:
+            messages.error(request, "このカードは使用できません。")
+            return redirect("guess_start", ante_num=game.current_ante_number)
+
+        request.session["pending_card"] = code  # カードコードをセッションに記録
+        return redirect("card_select_numbers", ante_num=game.current_ante_number)
+
+    # その他の item カード → 通常処理へ
+    request.POST = request.POST.copy()
+    request.POST["code"] = code
     return _use_card_common(request, card_type="item", redirect_name="guess_start")
 
 @require_POST
@@ -463,3 +492,50 @@ class SelectNumberView(FormView):
         request.session.pop("waiting_card_effect", None)
 
         return redirect("shop", ante_num=game.current_ante_number)
+    
+class ItemCardSelectView(View):
+    template_name = "game/item_card_select.html"
+
+    def get(self, request, ante_num):
+        problem_dict = request.session.get("problems", {})
+        problem = problem_dict.get(str(ante_num))
+        if not problem:
+            messages.error(request, "問題が見つかりません")
+            return redirect("guess_start", ante_num=ante_num)
+        return render(request, self.template_name, {
+            "ante_num": ante_num,
+            "problem_length": len(problem),
+        })
+
+    def post(self, request, ante_num):
+        game_id = request.session.get("game_id")
+        game = get_object_or_404(GameSession, id=game_id)
+        code = request.session.get("pending_card")
+        problem = request.session.get("problems", {}).get(str(ante_num))
+
+        indexes = request.POST.getlist("indexes")  # ['1', '3'] など
+        if len(indexes) != 2:
+            messages.error(request, "2つ選んでください")
+            return redirect("card_select_numbers", ante_num=ante_num)
+
+        indexes = list(map(int, indexes))
+        revealed = [problem[i] for i in indexes]
+
+        if code == "item_evenodd":
+            texts = [f"{i+1}番目：{'偶数' if int(d)%2==0 else '奇数'}" for i,d in zip(indexes, revealed)]
+        elif code == "item_highlow":
+            texts = [f"{i+1}番目：{'0〜4' if int(d)<=4 else '5〜9'}" for i,d in zip(indexes, revealed)]
+        else:
+            texts = ["不明な効果です"]
+
+        # 消費処理
+        game.consume_slots.remove(code)
+        game.save()
+        del request.session["pending_card"]
+
+        return render(request, self.template_name, {
+            "ante_num": ante_num,
+            "problem_length": len(problem),
+            "revealed_texts": texts,
+            "revealed_indexes": indexes,
+        })
