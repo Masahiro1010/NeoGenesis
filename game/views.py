@@ -16,6 +16,7 @@ from .plus import PlusCardScore
 from .effects import EffectsApply
 from django.views import View
 from django.shortcuts import render
+import uuid
 
 class GameSessionCreateView(TemplateView):
     template_name = 'game/start.html'
@@ -238,26 +239,39 @@ class ShopView(TemplateView):
         if not game_id:
             return redirect('game_start')
 
-        game = GameSession.objects.get(id=game_id)
+        game = get_object_or_404(GameSession, id=game_id)
+        ante_num = str(game.current_ante_number)
 
-        # ランダムカード2枚（ジョーカー、スペクトル、タロット、アイテム含む）
-        random_cards = random.sample(
-            [c for c in ALL_CARDS.values() if c.kind in ['joker', 'spectral', 'tarot', 'item']],
-            2
-        )
+        shop_data = game.shop_data.get(ante_num)
+        if not shop_data:
+            shop_data = self.generate_shop_data()
+            game.shop_data[ante_num] = shop_data
+            game.save()
 
-        # パック2種（ジョーカー・タロット・スペクトル・アイテム）
-        pack_kinds = ['joker', 'tarot', 'spectral', 'item']
-        pack_options = []
-        for kind in random.sample(pack_kinds, 2):
-            cards_of_kind = [c for c in ALL_CARDS.values() if c.kind == kind]
-            card_pool = random.sample(cards_of_kind, 3 if kind in ['tarot', 'item'] else 5)
-            pack_options.append({
-                'kind': kind,
-                'cards': card_pool,
-                'price': 3 if kind in ['tarot', 'item'] else 6,
-                'select_count': 1 if kind in ['tarot', 'item'] else 2,
-            })
+        # 所持しているカードコード一覧
+        owned_codes = set(game.joker_slots + game.consume_slots)
+
+        # カード購入候補（すでに買ったカードは除く）
+        random_cards = [
+            ALL_CARDS[code]
+            for code in shop_data["cards"]
+            if code not in owned_codes
+        ]
+
+        # パック購入候補（同じkindのパックは1回限りにする想定）
+        # たとえば `game.shop_data['purchased_packs'] = ['tarot', 'joker']` などで保存していた場合
+        purchased_kinds = game.shop_data.get("purchased_packs", [])
+        pack_options = [
+            pack for pack in shop_data["packs"]
+            if pack["kind"] not in purchased_kinds
+        ]
+
+        # 使用可能な強化カード（tarot / spectral）
+        enhancement_cards = [
+            ALL_CARDS[code]
+            for code in game.consume_slots
+            if ALL_CARDS[code].kind in ['tarot', 'spectral']
+        ]
 
         context = self.get_context_data(**kwargs)
         context.update({
@@ -265,8 +279,47 @@ class ShopView(TemplateView):
             'random_cards': random_cards,
             'pack_options': pack_options,
             'next_ante_num': game.current_ante_number,
+            'enhancement_cards': enhancement_cards,
         })
         return self.render_to_response(context)
+    
+    def generate_shop_data(self):
+        # ランダムカード2枚
+        random_cards = random.sample(
+            [c for c in ALL_CARDS.values() if c.kind in ['joker', 'spectral', 'tarot', 'item']],
+            2
+        )
+
+        # パック2種（ランダム）
+        pack_kinds = ['joker', 'tarot', 'spectral', 'item']
+        pack_options = []
+        for kind in random.sample(pack_kinds, 2):
+            cards_of_kind = [c for c in ALL_CARDS.values() if c.kind == kind]
+            card_pool = random.sample(cards_of_kind, 3 if kind in ['tarot', 'item'] else 5)
+            pack_options.append({
+                'kind': kind,
+                'codes': [card.code for card in card_pool],
+                'price': 3 if kind in ['tarot', 'item'] else 6,
+                'select_count': 1 if kind in ['tarot', 'item'] else 2,
+            })
+
+        return {
+            'cards': [card.code for card in random_cards],
+            'packs': pack_options
+        }
+    
+@require_POST
+def reroll_shop_view(request):
+    game_id = request.session.get("game_id")
+    game = get_object_or_404(GameSession, id=game_id)
+    ante_num = str(game.current_ante_number)
+
+    # 該当アンティーのショップデータ削除
+    if ante_num in game.shop_data:
+        del game.shop_data[ante_num]
+
+    game.save()
+    return redirect("shop", ante_num=game.current_ante_number)
     
 @require_POST
 def buy_card_view(request):
@@ -280,13 +333,9 @@ def buy_card_view(request):
     game = get_object_or_404(GameSession, id=game_id)
     ante_num = game.current_ante_number
 
-    # ✅ サーバー側で正しい価格を使用して所持金チェック
     if game.gold < card.price:
         messages.error(request, "所持金が足りません。")
         return redirect("shop", ante_num=ante_num)
-
-    # ✅ 金額を減算してからカード追加処理
-    game.gold -= card.price
 
     if card.kind == "joker":
         if len(game.joker_slots) >= 3:
@@ -301,6 +350,15 @@ def buy_card_view(request):
         else:
             game.consume_slots.append(code)
 
+    game.gold -= card.price
+
+    # ✅ ショップリスト（このアンティー）の中から購入カードを削除
+    ante_key = str(ante_num)
+    if ante_key in game.shop_data:
+        if "cards" in game.shop_data[ante_key]:
+            if code in game.shop_data[ante_key]["cards"]:
+                game.shop_data[ante_key]["cards"].remove(code)
+
     game.save()
 
     messages.success(request, f"{card.name} を購入しました。")
@@ -308,47 +366,114 @@ def buy_card_view(request):
 
 @require_POST
 def buy_pack_view(request):
-    selected_codes = request.POST.getlist("selected_codes")
-    kind = request.POST.get("kind")
+    selected_kind = request.POST.get("kind")
     price = int(request.POST.get("price"))
 
     game_id = request.session.get("game_id")
     game = get_object_or_404(GameSession, id=game_id)
-
-    # ✅ ante_num を取得
     ante_num = game.current_ante_number
+
+    # ショップデータから該当パックを取得
+    ante_key = str(ante_num)
+    shop_data = game.shop_data.get(ante_key, {})
+    pack = next((p for p in shop_data.get("packs", []) if p["kind"] == selected_kind), None)
+
+    if not pack:
+        messages.error(request, "パックが見つかりません。")
+        return redirect("shop", ante_num=ante_num)
 
     if game.gold < price:
         messages.error(request, "所持金が足りません。")
         return redirect("shop", ante_num=ante_num)
 
-    # 選択数をバリデート（パック種別により変動）
-    expected_count = 1 if price == 3 else 2
-    if len(selected_codes) > expected_count:
-        messages.error(request, f"{expected_count}枚選んでください。")
-        return redirect("shop", ante_num=ante_num)
-
-    # 購入処理
+    # 所持金減算
     game.gold -= price
 
-    for code in selected_codes:
-        card = ALL_CARDS.get(code)
-        if not card:
-            continue
-        if card.kind == "joker":
-            if len(game.joker_slots) >= 3:
-                messages.warning(request, f"スロット上限で {card.name} は登録できませんでした。")
-                return redirect("shop", ante_num=ante_num)
-            game.joker_slots.append(code)
-        else:
-            if len(game.consume_slots) >= 3:
-                messages.warning(request, f"スロット上限で {card.name} は登録できませんでした。")
-                return redirect("shop", ante_num=ante_num)
-            game.consume_slots.append(code)
+    # 購入済みリストに追加
+    purchased = game.shop_data.get("purchased_packs", [])
+    if selected_kind not in purchased:
+        purchased.append(selected_kind)
+        game.shop_data["purchased_packs"] = purchased
 
     game.save()
-    messages.success(request, f"{len(selected_codes)}枚を購入しました。")
-    return redirect("shop", ante_num=ante_num)
+
+    # ✅ セッションにパック保存（未開封）
+    token = str(uuid.uuid4())
+    request.session.modified = True
+    pending = request.session.get("pending_packs", {})
+    pending[token] = {
+        "kind": selected_kind,
+        "codes": pack["codes"],
+        "select_count": pack["select_count"],
+    }
+    request.session["pending_packs"] = pending
+
+    return redirect("open_pack", token=token)
+
+class PackOpenView(View):
+    def get(self, request, token):
+        request.session.modified = True
+        request.session.save()  # ← この行が重要
+        print("pending_packs:", request.session.get("pending_packs", {}))
+        print("checking token:", token)
+        pack_data = request.session.get("pending_packs", {}).get(str(token))
+        if not pack_data:
+            messages.error(request, "このパックはすでに開封済みです。")
+
+            # ✅ game_id から GameSession を取得して、current_ante_number を使う
+            game_id = request.session.get("game_id")
+            if not game_id:
+                return redirect("game_start")
+            game = get_object_or_404(GameSession, id=game_id)
+            return redirect("shop", ante_num=game.current_ante_number)
+
+        cards = [ALL_CARDS[code] for code in pack_data["codes"]]
+
+        return render(request, "game/pack_open.html", {
+            "token": token,
+            "cards": cards,
+            "select_count": pack_data["select_count"],
+        })
+
+    def post(self, request, token):
+        selected_codes = request.POST.getlist("selected_codes")
+        pack_data = request.session.get("pending_packs", {}).get(str(token))
+        if not pack_data:
+            messages.error(request, "すでに開封済みか無効なパックです。")
+
+            game_id = request.session.get("game_id")
+            if not game_id:
+                return redirect("game_start")
+            game = get_object_or_404(GameSession, id=game_id)
+            return redirect("shop", ante_num=game.current_ante_number)
+
+        if len(selected_codes) > pack_data["select_count"]:
+            messages.error(request, f"{pack_data['select_count']}枚選んでください。")
+            return redirect("open_pack", token=token)
+
+        # スロット追加処理
+        game_id = request.session.get("game_id")
+        game = get_object_or_404(GameSession, id=game_id)
+
+        for code in selected_codes:
+            card = ALL_CARDS.get(code)
+            if not card:
+                continue
+            if card.kind == "joker":
+                if len(game.joker_slots) < 3:
+                    game.joker_slots.append(code)
+            else:
+                if len(game.consume_slots) < 3:
+                    game.consume_slots.append(code)
+
+        game.save()
+
+        # ✅ このパックは開封済みとして削除
+        request.session["pending_packs"].pop(token, None)
+        request.session.modified = True
+
+        messages.success(request, "カードを取得しました。")
+        return redirect("shop", ante_num=game.current_ante_number)
 
 
 @require_POST

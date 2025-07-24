@@ -15,4 +15,6 @@ urlpatterns = [
     path('use_card/spectral/', views.use_spectral_card_view, name='use_spectral_card'),
     path("select_number/", views.SelectNumberView.as_view(), name="select_number"),
     path("card_select/<int:ante_num>/", views.ItemCardSelectView.as_view(), name="card_select_numbers"),
+    path('shop/reroll/', views.reroll_shop_view, name='reroll_shop'),
+    path("pack/open/<uuid:token>/", views.PackOpenView.as_view(), name="open_pack"),
 ]

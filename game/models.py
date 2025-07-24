@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import JSONField
 import uuid
 
 
@@ -6,7 +7,9 @@ class GameSession(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     started_at = models.DateTimeField(auto_now_add=True)
     final_score = models.IntegerField(null=True, blank=True)
+    shop_data = JSONField(default=dict)
     current_ante_number = models.IntegerField(default=1)
+    
     gold = models.IntegerField(default=10)
 
     # 🔄 deck_numbers を構造付きJSONにする（強化カード対応）

@@ -1,0 +1,41 @@
+{% extends "game/base.html" %}
+{% load static %}
+
+{% block title %}パック開封{% endblock %}
+
+{% block content %}
+<div class="container text-center" style="margin-top: 25vh; font-family: 'Cinzel', serif !important;">
+    <h2>パックを開封しました！</h2>
+    <form method="post">
+        {% csrf_token %}
+        <p>{{ select_count }}枚まで選べます（選ばないカードは破棄されます）</p>
+
+        <div class="d-flex flex-wrap justify-content-center gap-3" id="card-container">
+            {% for card in cards %}
+                <label class="border p-3 rounded shadow" style="width: 150px; cursor: pointer;">
+                    <input type="checkbox" class="form-check-input pack-check" name="selected_codes" value="{{ card.code }}">
+                    <div>{{ card.name }}</div>
+                    <div class="small">{{ card.description }}</div>
+                </label>
+            {% endfor %}
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-4">確定</button>
+    </form>
+</div>
+
+<script>
+    const maxSelectable = {{ select_count }};
+    const checkboxes = document.querySelectorAll(".pack-check");
+
+    checkboxes.forEach(cb => {
+        cb.addEventListener("change", () => {
+            const checkedCount = document.querySelectorAll(".pack-check:checked").length;
+            if (checkedCount > maxSelectable) {
+                cb.checked = false;
+                alert("選べるのは最大 " + maxSelectable + " 枚までです。");
+            }
+        });
+    });
+</script>
+{% endblock %}
