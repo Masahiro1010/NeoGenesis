@@ -5,8 +5,13 @@ class EffectsApply:
         if card.kind == "tarot":
             # タロットカードの効果を適用
             if card.code == "tarot_goldx2":
-                game.gold *= 2
-                effect_text = "所持金が2倍になった!"
+                if game.gold < 20:
+                    # 所持金を倍にする
+                    game.gold *= 2
+                    effect_text = "所持金が2倍になった!"
+                else:
+                    game.gold += 20
+                    effect_text = "所持金が20増えた!"
             if card.code == "tarot_jokergold":
                 # タロットカードのゴールド効果
                 gameGoldPlus = len(game.joker_slots) * 3

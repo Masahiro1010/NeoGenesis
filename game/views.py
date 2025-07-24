@@ -313,10 +313,14 @@ def reroll_shop_view(request):
     game_id = request.session.get("game_id")
     game = get_object_or_404(GameSession, id=game_id)
     ante_num = str(game.current_ante_number)
+    if game.gold < 5:
+        messages.error(request, "所持金が足りません。")
+        return redirect("shop", ante_num=ante_num)
 
     # 該当アンティーのショップデータ削除
     if ante_num in game.shop_data:
         del game.shop_data[ante_num]
+    game.gold -= 5  # リロール費用5ドルを引く
 
     game.save()
     return redirect("shop", ante_num=game.current_ante_number)

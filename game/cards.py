@@ -35,11 +35,11 @@ ITEM_CARDS = {
 # タロットカード一覧（例）
 # ------------------------------
 TAROT_CARDS = {
-    "tarot_buff": Card("tarot_buff", "強化カード", 3, "数字1つをヒット時役点*2に", "tarot"),
+    "tarot_buff": Card("tarot_buff", "強化カード", 3, "数字1つをヒット+3、ブロー+2に", "tarot"),
     "tarot_gold": Card("tarot_gold", "ゴールドカード", 3, "数字1つをブロー時金+3に", "tarot"),
-    "tarot_steel": Card("tarot_steel", "スチールカード", 4, "その数字を予想が外れたら+2", "tarot"),
-    "tarot_jokergold": Card("tarot_jokergold", "ジョーカー金作カード", 5, "ジョーカーの値段合計を得る", "tarot"),
-    "tarot_goldx2": Card("tarot_goldx2", "金倍カード", 5, "金を倍にする", "tarot"),
+    "tarot_steel": Card("tarot_steel", "スチールカード", 4, "その数字を予想が外れたら+3", "tarot"),
+    "tarot_jokergold": Card("tarot_jokergold", "ジョーカー金作カード", 5, "ジョーカーの枚数*3を得る", "tarot"),
+    "tarot_goldx2": Card("tarot_goldx2", "金倍カード", 5, "金を倍にする(最大20)", "tarot"),
 }
 
 # ------------------------------
