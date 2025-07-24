@@ -244,11 +244,12 @@ class ShopView(TemplateView):
 
         shop_data = game.shop_data.get(ante_num)
         if not shop_data:
-            shop_data = self.generate_shop_data()
+            shop_data = self.generate_shop_data(game)
             game.shop_data[ante_num] = shop_data
             game.save()
 
-        # 所持しているカードコード一覧
+        # 所持しているカード + 購入済みカード（このアンティー中のみ）
+        #purchased_codes = shop_data.get("purchased_codes", [])
         owned_codes = set(game.joker_slots + game.consume_slots)
 
         # カード購入候補（すでに買ったカードは除く）
@@ -259,7 +260,6 @@ class ShopView(TemplateView):
         ]
 
         # パック購入候補（同じkindのパックは1回限りにする想定）
-        # たとえば `game.shop_data['purchased_packs'] = ['tarot', 'joker']` などで保存していた場合
         purchased_kinds = game.shop_data.get("purchased_packs", [])
         pack_options = [
             pack for pack in shop_data["packs"]
@@ -282,19 +282,35 @@ class ShopView(TemplateView):
             'enhancement_cards': enhancement_cards,
         })
         return self.render_to_response(context)
-    
-    def generate_shop_data(self):
-        # ランダムカード2枚
-        random_cards = random.sample(
-            [c for c in ALL_CARDS.values() if c.kind in ['joker', 'spectral', 'tarot', 'item']],
-            2
-        )
 
-        # パック2種（ランダム）
+    def generate_shop_data(self, game):
+        # 所持カードや購入済みカードのコードを取得
+        owned_codes = set(game.joker_slots + game.consume_slots)
+        purchased_packs = game.shop_data.get("purchased_packs", [])
+
+        # 候補カード：未所持のjoker, spectral, tarot, itemのみ
+        candidate_cards = [
+            c for c in ALL_CARDS.values()
+            if c.kind in ['joker', 'spectral', 'tarot', 'item'] and c.code not in owned_codes
+        ]
+
+        # ランダムに2枚選出（候補が足りない場合は少なくなる）
+        random_cards = random.sample(candidate_cards, min(2, len(candidate_cards)))
+
+        # パック生成
         pack_kinds = ['joker', 'tarot', 'spectral', 'item']
+        available_kinds = [kind for kind in pack_kinds if kind not in purchased_packs]
+        selected_kinds = random.sample(available_kinds, min(2, len(available_kinds)))
+
         pack_options = []
-        for kind in random.sample(pack_kinds, 2):
-            cards_of_kind = [c for c in ALL_CARDS.values() if c.kind == kind]
+        for kind in selected_kinds:
+            cards_of_kind = [
+                c for c in ALL_CARDS.values()
+                if c.kind == kind and c.code not in owned_codes
+            ]
+            if not cards_of_kind:
+                continue  # 候補がなければスキップ
+
             card_pool = random.sample(cards_of_kind, 3 if kind in ['tarot', 'item'] else 5)
             pack_options.append({
                 'kind': kind,
@@ -307,23 +323,25 @@ class ShopView(TemplateView):
             'cards': [card.code for card in random_cards],
             'packs': pack_options
         }
+
     
 @require_POST
 def reroll_shop_view(request):
     game_id = request.session.get("game_id")
     game = get_object_or_404(GameSession, id=game_id)
     ante_num = str(game.current_ante_number)
+
     if game.gold < 5:
         messages.error(request, "所持金が足りません。")
         return redirect("shop", ante_num=ante_num)
 
-    # 該当アンティーのショップデータ削除
+    # 該当アンティーのショップデータ削除（購入済カードリスト含む）
     if ante_num in game.shop_data:
         del game.shop_data[ante_num]
-    game.gold -= 5  # リロール費用5ドルを引く
 
+    game.gold -= 5  # リロール費用
     game.save()
-    return redirect("shop", ante_num=game.current_ante_number)
+    return redirect("shop", ante_num=ante_num)
     
 @require_POST
 def buy_card_view(request):
@@ -336,6 +354,7 @@ def buy_card_view(request):
     game_id = request.session.get("game_id")
     game = get_object_or_404(GameSession, id=game_id)
     ante_num = game.current_ante_number
+    ante_key = str(ante_num)
 
     if game.gold < card.price:
         messages.error(request, "所持金が足りません。")
@@ -356,12 +375,15 @@ def buy_card_view(request):
 
     game.gold -= card.price
 
-    # ✅ ショップリスト（このアンティー）の中から購入カードを削除
-    ante_key = str(ante_num)
+    # ✅ ショップリストから購入カードを削除
     if ante_key in game.shop_data:
-        if "cards" in game.shop_data[ante_key]:
-            if code in game.shop_data[ante_key]["cards"]:
-                game.shop_data[ante_key]["cards"].remove(code)
+        if "cards" in game.shop_data[ante_key] and code in game.shop_data[ante_key]["cards"]:
+            game.shop_data[ante_key]["cards"].remove(code)
+
+        # ✅ このアンティー中の購入カード履歴に追加（再表示防止）
+        purchased_codes = game.shop_data[ante_key].get("purchased_codes", [])
+        purchased_codes.append(code)
+        game.shop_data[ante_key]["purchased_codes"] = purchased_codes
 
     game.save()
 
