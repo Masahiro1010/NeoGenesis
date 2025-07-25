@@ -19,4 +19,5 @@ urlpatterns = [
     path("pack/open/<uuid:token>/", views.PackOpenView.as_view(), name="open_pack"),
     path("submit_score/", views.SubmitScoreView.as_view(), name="submit_score"),
     path("ranking/", views.RankingView.as_view(), name="ranking"),
+    path('timeout/<int:ante_num>/', views.timeout_force_end, name='timeout_force_end'),
 ]

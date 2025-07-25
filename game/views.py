@@ -203,6 +203,29 @@ class GuessView(View):
             'ante_num': ante_num,
             'results': results
         })
+    
+@require_POST
+def timeout_force_end(request, ante_num):
+    ante_str = str(ante_num)
+    game_id = request.session.get("game_id")
+    game = get_object_or_404(GameSession, id=game_id)
+
+    # 結果がなければ空で処理
+    results = request.session.get("results", {}).get(ante_str, [])
+    total_ante_score = sum(r.get('total_score', 0) for r in results)
+
+    # スコア保存
+    scores = request.session.get("scores", {})
+    scores[ante_str] = total_ante_score
+    request.session["scores"] = scores
+    request.session.modified = True
+
+    # アンティー番号更新（次のAnteへ）
+    game.current_ante_number += 1
+    game.gold += 10
+    game.save()
+
+    return redirect('score_summary', ante_num=ante_num)
 
 @require_POST
 def reset_game(request):

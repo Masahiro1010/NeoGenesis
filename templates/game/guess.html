@@ -4,6 +4,25 @@
 {% block title %}予想入力 - Ante {{ ante_num }}{% endblock %}
 
 {% block content %}
+<!-- タイマー表示 -->
+<div id="timer-box" style="
+position: fixed;
+top: 20px;
+right: 30px;
+background-color: rgba(255, 255, 255, 0.85);
+padding: 10px 20px;
+border-radius: 8px;
+font-weight: bold;
+font-size: 1.2rem;
+z-index: 9999;
+font-family: 'Cinzel', serif;
+">
+残り時間：<span id="timer">60</span>秒
+</div>
+<form id="timeout-form" method="post" action="{% url 'timeout_force_end' ante_num=ante_num %}">
+    {% csrf_token %}
+</form>
+
 <div class="row justify-content-center" style="position: relative; min-height: 60vh;">
     <div class="col-md-10 col-lg-8">
 
@@ -138,5 +157,20 @@
             guessDisplay.textContent = "クリック入力";
         };
     });
+</script>
+
+<script>
+    let timeLeft = 60;
+    const timerElement = document.getElementById("timer");
+
+    const countdown = setInterval(() => {
+        timeLeft--;
+        timerElement.textContent = timeLeft;
+
+        if (timeLeft <= 0) {
+            clearInterval(countdown);
+            document.getElementById("timeout-form").submit();
+        }
+    }, 1000);
 </script>
 {% endblock %}
