@@ -148,7 +148,7 @@ class GuessView(View):
             card_score,
             game.joker_slots,
             judge_HBN,
-            guess,
+            index_list,
             game.deck_numbers,
             ) # ジョーカー効果の適用
         card_score = PlusCardScore.StrongerJudge(

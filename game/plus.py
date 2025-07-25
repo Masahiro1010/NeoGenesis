@@ -1,5 +1,5 @@
 class PlusCardScore:
-    def JokerJudge(score, joker_slots, judge_HBN = None, guess = None, card_deck = None):
+    def JokerJudge(score, joker_slots, judge_HBN = None, index_list = None, card_deck = None):
         """
         ジョーカーカードのスコア計算
         """
@@ -15,30 +15,30 @@ class PlusCardScore:
                 if judge == "H":
                     for slot in joker_slots:
                         print ("slot")
-                        if slot == "joker_even" and int(guess[jokerCount]) % 2 == 0:
+                        if slot == "joker_even" and int(card_deck[int(index_list[jokerCount])]["number"]) % 2 == 0:
                             score += 2
-                        elif slot == "joker_odd" and int(guess[jokerCount]) % 2 == 1:
+                        elif slot == "joker_odd" and int(card_deck[int(index_list[jokerCount])]["number"]) % 2 == 1:
                             score += 2
-                        elif slot == "joker_low" and int(guess[jokerCount]) < 5:
+                        elif slot == "joker_low" and int(card_deck[int(index_list[jokerCount])]["number"]) < 5:
                             score += 2
-                        elif slot == "joker_high" and int(guess[jokerCount]) >= 5:
+                        elif slot == "joker_high" and int(card_deck[int(index_list[jokerCount])]["number"]) >= 5:
                             score += 2
-                        elif slot == "joker_pi" and int(guess[jokerCount]) in [1, 3, 4]:
+                        elif slot == "joker_pi" and int(card_deck[int(index_list[jokerCount])]["number"]) in [1, 3, 4]:
                             score += 3
                 if judge == "B":
                     for slot in joker_slots:
-                        if slot == "joker_even" and int(guess[jokerCount]) % 2 == 0:
+                        if slot == "joker_even" and int(card_deck[int(index_list[jokerCount])]["number"]) % 2 == 0:
                             score += 1
-                        elif slot == "joker_odd" and int(guess[jokerCount]) % 2 == 1:
+                        elif slot == "joker_odd" and int(card_deck[int(index_list[jokerCount])]["number"]) % 2 == 1:
                             score += 1
-                        elif slot == "joker_low" and int(guess[jokerCount]) < 5:
+                        elif slot == "joker_low" and int(card_deck[int(index_list[jokerCount])]["number"]) < 5:
                             score += 1
-                        elif slot == "joker_high" and int(guess[jokerCount]) >= 5:
+                        elif slot == "joker_high" and int(card_deck[int(index_list[jokerCount])]["number"]) >= 5:
                             score += 1
-                        elif slot == "joker_pi" and int(guess[jokerCount]) in [1, 3, 4]:
+                        elif slot == "joker_pi" and int(card_deck[int(index_list[jokerCount])]["number"]) in [1, 3, 4]:
                             score += 2
                 redSealFlg = False
-                if card_deck[int(guess[jokerCount])]["red_seal"] == True and redSealCount < 1:
+                if card_deck[int(index_list[jokerCount])]["red_seal"] == True and redSealCount < 1:
                     redSealCount += 1
                     redSealFlg = True
             jokerCount += 1
