@@ -4,8 +4,8 @@ from django.shortcuts import get_object_or_404
 from .models import GameSession
 from django.views.generic.edit import FormView
 import random
-from .forms import GuessForm, NumberChoiceForm
-from .models import GameSession
+from .forms import GuessForm, NumberChoiceForm, NicknameForm
+from .models import GameSession, RankRecord
 import json
 from django.views.decorators.csrf import csrf_protect
 from django.utils.decorators import method_decorator
@@ -228,6 +228,10 @@ class ScoreSummaryView(TemplateView):
         scores[ante_num] = total_score
         self.request.session['scores'] = scores
         self.request.session.modified = True
+
+        # 🎯 もしこれが最後のAnteなら、提出画面へのリンクを出す
+        if int(ante_num) == 5:
+            context['is_last_ante'] = True  # テンプレートで使う
 
         return context
     
@@ -690,3 +694,34 @@ class ItemCardSelectView(View):
             "revealed_texts": texts,
             "revealed_indexes": indexes,
         })
+    
+class SubmitScoreView(FormView):
+    template_name = "game/submit_score.html"
+    form_class = NicknameForm
+
+    def form_valid(self, form):
+        nickname = form.cleaned_data['nickname']
+        scores_dict = self.request.session.get('scores', {})
+        total_score = sum(scores_dict.get(str(i), 0) for i in range(1, 6))  # 🎯 1〜5
+
+        RankRecord.objects.create(nickname=nickname, score=total_score)
+
+        # ゲームセッションの終了（任意）
+        self.request.session.flush()
+
+        return redirect("ranking")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        scores_dict = self.request.session.get('scores', {})
+        total_score = sum(scores_dict.get(str(i), 0) for i in range(1, 6))
+        context["total_score"] = total_score
+        return context
+    
+class RankingView(TemplateView):
+    template_name = "game/ranking.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["top_scores"] = RankRecord.objects.order_by("-score")[:10]
+        return context

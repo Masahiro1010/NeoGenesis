@@ -32,11 +32,17 @@
                 <h4 class="text-success"style="font-family: 'Cinzel', serif !important;">このアンティーの合計スコア：<strong>{{ total_score }}</strong></h4>
             </div>
 
+
+            {% if not is_last_ante %}
             <!-- ショップへ進む -->
             <form method="get" action="{% url 'shop' ante_num=ante_num %}">
                 <button type="submit" class="btn btn-lg btn-dark custom-next-btn" style="margin-bottom: 8vh; font-family: 'Cinzel', serif !important;">▶ ショップに進む</button>
             </form>
+            {% endif %}
 
+            {% if is_last_ante %}
+                <a href="{% url 'submit_score' %}" class="btn btn-success mt-4" style="margin-bottom: 8vh; font-family: 'Cinzel', serif !important;">スコアを提出する</a>
+            {% endif %}
         </div>
     </div>
 </div>

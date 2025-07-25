@@ -74,6 +74,14 @@ class Guess(models.Model):
     def __str__(self):
         return f"Guess {self.guess_code} - H{self.hit}B{self.blow}"
 
+class RankRecord(models.Model):
+    nickname = models.CharField(max_length=30)
+    score = models.PositiveIntegerField()
+    date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.nickname} - {self.score}"
+
 """
 class Card(models.Model):
     CARD_TYPE_CHOICES = [

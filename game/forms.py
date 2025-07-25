@@ -18,3 +18,6 @@ class GuessForm(forms.Form):
     
 class NumberChoiceForm(forms.Form):
     number = forms.ChoiceField(choices=[(str(i), str(i)) for i in range(10)], label="強化する数字")
+
+class NicknameForm(forms.Form):
+    nickname = forms.CharField(max_length=30, label="ニックネーム")
