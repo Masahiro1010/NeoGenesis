@@ -513,9 +513,25 @@
             <h5 class="text-primary">ジョーカースロット</h5>
             <ul class="list-unstyled">
                 {% for card in joker_cards %}
-                    <li>{{ card.name }}：{{ card.description }}</li>
+                <li class="d-flex align-items-center mb-2" style="gap: 1rem;">
+                    <!-- カード名＋説明（折り返さず全文表示） -->
+                    <div style="white-space: nowrap; overflow-x: auto; flex-grow: 1;">
+                        <strong>{{ card.name }}</strong>：<small class="text-muted">{{ card.description }}</small>
+                    </div>
+            
+                    <!-- 削除ボタン（右端、極小サイズ） -->
+                    <form method="post" action="{% url 'remove_slot_card' %}" style="margin: 0;">
+                        {% csrf_token %}
+                        <input type="hidden" name="code" value="{{ card.code }}">
+                        <button type="submit"
+                                class="btn btn-outline-danger btn-sm px-2 py-0"
+                                style="font-size: 0.75rem; white-space: nowrap; line-height: 1;">
+                            削除
+                        </button>
+                    </form>
+                </li>
                 {% empty %}
-                    <li>スロットは空です</li>
+                <li>スロットは空です</li>
                 {% endfor %}
             </ul>
         </div>
@@ -523,9 +539,25 @@
             <h5 class="text-warning">消費スロット</h5>
             <ul class="list-unstyled">
                 {% for card in consume_cards %}
-                    <li>・{{ card.name }}：{{ card.description }}</li>
+                <li class="d-flex align-items-center mb-2" style="gap: 1rem;">
+                    <!-- カード名＋説明：幅制限せず表示 -->
+                    <div style="white-space: nowrap; overflow-x: auto; flex-grow: 1;">
+                        <strong>{{ card.name }}</strong>：<small class="text-muted">{{ card.description }}</small>
+                    </div>
+            
+                    <!-- 削除ボタン：最小限のサイズ -->
+                    <form method="post" action="{% url 'remove_slot_card' %}" style="margin: 0;">
+                        {% csrf_token %}
+                        <input type="hidden" name="code" value="{{ card.code }}">
+                        <button type="submit"
+                                class="btn btn-outline-danger btn-sm px-2 py-0"
+                                style="font-size: 0.75rem; white-space: nowrap; line-height: 1;">
+                            削除
+                        </button>
+                    </form>
+                </li>
                 {% empty %}
-                    <li>スロットは空です</li>
+                <li>スロットは空です</li>
                 {% endfor %}
             </ul>
         </div>

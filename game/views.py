@@ -759,3 +759,21 @@ class RankingView(TemplateView):
         context = super().get_context_data(**kwargs)
         context["top_scores"] = RankRecord.objects.order_by("-score")[:10]
         return context
+    
+@require_POST
+def remove_slot_card_view(request):
+    code = request.POST.get("code")
+    game_id = request.session.get("game_id")
+    game = get_object_or_404(GameSession, id=game_id)
+
+    if code in game.joker_slots:
+        game.joker_slots.remove(code)
+        messages.success(request, f"{ALL_CARDS[code].name}（ジョーカー）を破棄しました。")
+    elif code in game.consume_slots:
+        game.consume_slots.remove(code)
+        messages.success(request, f"{ALL_CARDS[code].name}（消費カード）を破棄しました。")
+    else:
+        messages.error(request, "そのカードはスロットに存在しません。")
+
+    game.save()
+    return redirect(request.META.get('HTTP_REFERER', 'shop'))  # 元のページに戻す

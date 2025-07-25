@@ -20,4 +20,5 @@ urlpatterns = [
     path("submit_score/", views.SubmitScoreView.as_view(), name="submit_score"),
     path("ranking/", views.RankingView.as_view(), name="ranking"),
     path('timeout/<int:ante_num>/', views.timeout_force_end, name='timeout_force_end'),
+    path("remove_card/", views.remove_slot_card_view, name="remove_slot_card"),
 ]
