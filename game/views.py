@@ -184,6 +184,11 @@ class GuessView(View):
             if not game_id:
                 return redirect('game_start')
             game = GameSession.objects.get(id=game_id)
+            
+            # ★ アンティー終了時にパック履歴を削除
+            if "purchased_packs" in game.shop_data:
+                del game.shop_data["purchased_packs"]
+            
             # ✅ アンティー番号を1つ進める
             game.current_ante_number += 1
             game.gold += 10  # 所持金を10プラス
@@ -209,6 +214,10 @@ def timeout_force_end(request, ante_num):
     ante_str = str(ante_num)
     game_id = request.session.get("game_id")
     game = get_object_or_404(GameSession, id=game_id)
+
+    # ★ アンティー終了時にパック履歴を削除
+    if "purchased_packs" in game.shop_data:
+        del game.shop_data["purchased_packs"]
 
     # 結果がなければ空で処理
     results = request.session.get("results", {}).get(ante_str, [])
@@ -338,7 +347,9 @@ class ShopView(TemplateView):
             if not cards_of_kind:
                 continue  # 候補がなければスキップ
 
-            card_pool = random.sample(cards_of_kind, 3 if kind in ['tarot', 'item'] else 5)
+            #card_pool = random.sample(cards_of_kind, 3 if kind in ['tarot', 'item'] else 5)
+            num_cards = 3 if kind in ['tarot', 'item'] else 5
+            card_pool = random.sample(cards_of_kind, min(num_cards, len(cards_of_kind)))
             pack_options.append({
                 'kind': kind,
                 'codes': [card.code for card in card_pool],
