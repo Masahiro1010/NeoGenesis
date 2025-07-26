@@ -17,7 +17,7 @@ font-size: 1.2rem;
 z-index: 9999;
 font-family: 'Cinzel', serif;
 ">
-残り時間：<span id="timer">60</span>秒
+残り時間：<span id="timer">{{ remaining_time }}</span>秒
 </div>
 <form id="timeout-form" method="post" action="{% url 'timeout_force_end' ante_num=ante_num %}">
     {% csrf_token %}
@@ -160,7 +160,7 @@ font-family: 'Cinzel', serif;
 </script>
 
 <script>
-    let timeLeft = 60;
+    let timeLeft = Number("{{ remaining_time|default:60 }}");  // Pythonから残り時間を受け取る
     const timerElement = document.getElementById("timer");
 
     const countdown = setInterval(() => {
@@ -173,4 +173,5 @@ font-family: 'Cinzel', serif;
         }
     }, 1000);
 </script>
+
 {% endblock %}

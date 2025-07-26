@@ -17,6 +17,7 @@ from .effects import EffectsApply
 from django.views import View
 from django.shortcuts import render
 import uuid
+from django.utils import timezone
 
 class GameSessionCreateView(TemplateView):
     template_name = 'game/start.html'
@@ -204,9 +205,23 @@ class GuessView(View):
     def get(self, request, *args, **kwargs):
         ante_num = str(kwargs['ante_num'])
         results = request.session.get('results', {}).get(ante_num, [])
+        
+        # タイマーの管理（セッションに記録）
+        timer_key = f"timer_start_{ante_num}"
+        time_limit = 300  # 5分（秒）
+
+        if timer_key not in request.session:
+            # 初回アクセス時に記録
+            request.session[timer_key] = timezone.now().timestamp()
+
+        start_time = request.session[timer_key]
+        elapsed = timezone.now().timestamp() - start_time
+        remaining = max(int(time_limit - elapsed), 0)
+
         return render(request, 'game/guess.html', {
             'ante_num': ante_num,
-            'results': results
+            'results': results,
+            'remaining_time': remaining
         })
     
 @require_POST
@@ -214,6 +229,11 @@ def timeout_force_end(request, ante_num):
     ante_str = str(ante_num)
     game_id = request.session.get("game_id")
     game = get_object_or_404(GameSession, id=game_id)
+
+    # タイマー削除
+    timer_key = f"timer_start_{ante_str}"
+    if timer_key in request.session:
+        del request.session[timer_key]
 
     # ★ アンティー終了時にパック履歴を削除
     if "purchased_packs" in game.shop_data:
