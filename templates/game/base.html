@@ -415,6 +415,8 @@
             #gold-mobile {
                 font-size: 0.95rem;
                 color: black;
+                margin-left: auto;   /* ← 右寄せに */
+                margin-right: 2vw;
             }
 
             .slot-section {
@@ -467,7 +469,7 @@
             }
 
             .glass-card-guess {
-                margin: 10vh auto;
+                margin: 6vh auto !important;
                 padding: 5vw;
                 max-width: 95vw;
                 width: 95%;
@@ -505,10 +507,14 @@
             }
 
             .slot-section {
-                position: static;
+                position: static !important;  /* ← 固定解除 */
                 width: 95%;
                 margin: 4vh auto;
                 padding: 1rem;
+                z-index: auto;
+                transform: none !important;  /* ← 中央寄せのtranslateも無効化 */
+                top: auto !important;
+                left: auto !important;
             }
 
             .slot-box {
