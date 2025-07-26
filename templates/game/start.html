@@ -83,36 +83,36 @@
 
         @media (max-width: 576px) {
             .neon-text {
-                font-size: 6.0rem;
+                font-size: 66vw;  /* ← 画面幅の2/3に調整 */
                 line-height: 1.1;
             }
 
             .subtitle {
-                font-size: 2.3rem;
-                margin-top: 0.7rem;
-                letter-spacing: 1px;
+                font-size: 1.6rem;
+                margin-top: 1rem;
+                font-weight: bold;
+                letter-spacing: 1.2px;
             }
 
             .btn-custom {
-                font-size: 2.3rem;
-                padding: 0.6rem 1.2rem;
-                margin-top: 1rem;
+                font-size: 1.3rem;
+                padding: 1rem 2.4rem;
+                margin-top: 2rem;
+                background-color: rgba(255, 255, 255, 0.9);
+                color: #000;
+                border: 2px solid #000;
             }
 
             .center-content {
                 width: 100%;
                 padding: 0 1rem;
-                transform: translate(-50%, -55%);
+                transform: translate(-50%, -48%);
             }
 
-            button.btn.btn-outline-light.btn-sm.mt-2 {
-                font-size: 1rem;
-                padding: 0.5rem 1rem;
-            }
-
+            button.btn.btn-outline-light.btn-sm.mt-2,
             a.btn.btn-outline-light.btn-sm {
                 font-size: 1rem;
-                padding: 0.5rem 1rem;
+                padding: 0.4rem 0.8rem;
             }
         }
     </style>
