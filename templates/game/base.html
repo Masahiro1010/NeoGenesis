@@ -463,6 +463,15 @@
         }
 
         @media (max-width: 768px) {
+            .gold-mobile {
+                font-size: 0.9rem;
+                margin-right: 1vw;
+                font-family: 'Cinzel', serif !important;
+            }
+            .ante-start-box {
+                margin-top: 10vh !important;  /* ← 40vh → 20vh に軽減 */
+            }
+
             html, body {
                 font-size: 1rem;
                 overflow-x: hidden;
@@ -550,6 +559,8 @@
             }
 
             .header-icons > div {
+                height: 60px;
+                line-height: 60px;
                 max-width: 40vw;
                 font-size: 0.9rem;
                 padding: 0.5rem 1vw;
@@ -588,7 +599,7 @@
 
 {% if gold %}
 <div class="header-icons d-lg-none">
-    <div id="gold-mobile">{{ gold }} ドル</div>
+    <div id="gold-mobile" style = "font-family: 'Cinzel', serif !important;">所持金：{{ gold }}</div>
     <div id="deck-icon-mobile">🃏</div>
     <div id="score-icon-mobile">📘</div>
 </div>
