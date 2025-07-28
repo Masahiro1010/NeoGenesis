@@ -23,7 +23,22 @@ font-family: 'Cinzel', serif;
     {% csrf_token %}
 </form>
 
-<div class="row justify-content-center" style="position: relative; min-height: 60vh;">
+<style>
+    .guess-container {
+        position: relative;
+        min-height: 60vh; /* 高さを確保 */
+    }
+
+    @media (max-width: 768px) {
+        .guess-container {
+            min-height: 30vh; /* モバイルでは少し高く */
+        }
+    }
+
+
+</style>
+
+<div class="row justify-content-center guess-container">
     <div class="col-md-10 col-lg-8">
 
         <form method="post">
@@ -109,8 +124,8 @@ font-family: 'Cinzel', serif;
                         <li class="list-group-item bg-transparent text-black" style="font-family: 'Cinzel', serif !important;">
                             <strong>{{ r.guess }}</strong> → {{ r.hit }}H {{ r.blow }}B<br>
                             <small>
-                                ・役点：{{ r.yaku_score }} / カード点：{{ r.card_score }}<br>
-                                ・合計：{{ r.total_score }}
+                                役点：{{ r.yaku_score }} / カード点：{{ r.card_score }}<br>
+                                合計：{{ r.total_score }}
                             </small>
                         </li>
                     {% endfor %}
