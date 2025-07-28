@@ -4,24 +4,6 @@
 {% block title %}予想入力 - Ante {{ ante_num }}{% endblock %}
 
 {% block content %}
-<!-- タイマー表示 -->
-<div id="timer-box" style="
-position: fixed;
-top: 20px;
-right: 30px;
-background-color: rgba(255, 255, 255, 0.85);
-padding: 10px 20px;
-border-radius: 8px;
-font-weight: bold;
-font-size: 1.2rem;
-z-index: 9999;
-font-family: 'Cinzel', serif;
-">
-残り時間：<span id="timer">{{ remaining_time }}</span>秒
-</div>
-<form id="timeout-form" method="post" action="{% url 'timeout_force_end' ante_num=ante_num %}">
-    {% csrf_token %}
-</form>
 
 <style>
     .guess-container {
@@ -29,14 +11,109 @@ font-family: 'Cinzel', serif;
         min-height: 60vh; /* 高さを確保 */
     }
 
+    #timer-box {
+        position: fixed;
+        top: 20px;
+        right: 30px;
+        background-color: rgba(255, 255, 255, 0.85);
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: bold;
+        font-size: 1.2rem;
+        z-index: 9999;
+        font-family: 'Cinzel', serif;
+    }
+
+    .glass-card-guess {
+        position: static;
+        margin: 22vh auto;
+        max-width: 45vw;
+        width: 90%;
+        background-color: white !important;
+        -webkit-backdrop-filter: blur(2.5vh);
+        backdrop-filter: blur(2.5vh);
+        border-radius: 2vh;
+        padding: 4vh 3vw;
+        min-height: 25vh;
+        box-shadow: 0 0 3vh rgba(255, 255, 255, 0.12);
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-family: 'Cinzel', serif !important;
+    }
+
+    .guess-display-box {
+        font-size: 4.5vh;       /* ← さらに大きく強調 */
+        letter-spacing: 1vw;    /* 数字間に余裕 */
+        min-height: 10vh;       /* 縦のゆとり */
+        width: 100%;
+        padding: 2vh 2vw;
+        border-radius: 1vh;
+        border: 0.3vh solid rgba(255, 255, 255, 0.3);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        text-shadow: 0 0 1vh rgba(0, 0, 0, 0.5);
+        background-color: rgba(255, 255, 255, 0.1);
+        color: black;
+    }
+
+    .glass-card-history {
+        position: fixed;
+        top: 25vh;
+        left: 3vw;
+        width: 24vw;
+        max-width: 300px;
+        height: calc(100vh - 38vh);  /* ← 下2vh余白を確保 */
+        overflow-y: auto;
+        background-color: white !important;
+        -webkit-backdrop-filter: blur(15px);
+        backdrop-filter: blur(15px);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 0 40px rgba(255, 255, 255, 0.12);
+        color: #fff;
+        z-index: 10;
+    }
+
     @media (max-width: 768px) {
         .guess-container {
             min-height: 30vh; /* モバイルでは少し高く */
         }
+
+        .glass-card-guess {
+            margin-top: 6vh !important;
+            padding: 5vw;
+            max-width: 95vw;
+            width: 95%;
+            min-height: auto;
+        }
+
+        .guess-display-box {
+            font-size: 6vw;
+            letter-spacing: 4vw;
+            padding: 1rem;
+        }
+
+        .glass-card-history {
+            position: static;
+            width: 95%;
+            height: auto;
+            margin: 2vh auto;
+            padding: 1rem;
+        }
     }
-
-
 </style>
+
+<!-- タイマー表示 -->
+<div id="timer-box">
+残り時間：<span id="timer">{{ remaining_time }}</span>秒
+</div>
+<form id="timeout-form" method="post" action="{% url 'timeout_force_end' ante_num=ante_num %}">
+    {% csrf_token %}
+</form>
 
 <div class="row justify-content-center guess-container">
     <div class="col-md-10 col-lg-8">
@@ -45,15 +122,15 @@ font-family: 'Cinzel', serif;
             {% csrf_token %}
         
             <div class="glass-card-guess text-center">
-                <h2 class="text-dark mb-3" style="font-size: 3.5vh; font-family: 'Cinzel', serif !important;">Ante {{ ante_num }}：予想</h2>
+                <h2 class="text-dark mb-3" style="font-size: 3.5vh;">Ante {{ ante_num }}：予想</h2>
             
                 <!-- 表示欄 -->
-                <div id="guessDisplay" class="guess-display-box mb-3" style="font-family: 'Cinzel', serif !important;">
+                <div id="guessDisplay" class="guess-display-box mb-3">
                     クリック入力
                 </div>
             
                 <!-- ボタン3つ -->
-                <div class="d-flex flex-wrap justify-content-center gap-2 mb-3" style="font-family: 'Cinzel', serif !important;">
+                <div class="d-flex flex-wrap justify-content-center gap-2 mb-3">
                     <button type="button" class="btn custom-btn" onclick="removeLast()">1文字削除</button>
                     <button type="button" class="btn custom-btn" onclick="clearInput()">クリア</button>
                     <button type="submit" class="btn custom-btn">予想する</button>
