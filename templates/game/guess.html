@@ -252,6 +252,9 @@
 <!-- JSで入力処理 -->
 <script>
     document.addEventListener("DOMContentLoaded", function () {
+        function getDefaultDisplayText() {
+            return window.matchMedia("(max-width: 768px)").matches ? "タップ" : "クリック入力";
+        }
         const guessDisplay = document.getElementById("guessDisplay");
         const guessInput = document.getElementById("guessInput");
         const indexInput = document.getElementById("guessIndexes");
@@ -274,14 +277,14 @@
             if (guessInput.value.length > 0) {
                 guessInput.value = guessInput.value.slice(0, -1);
                 indexInput.value = indexInput.value.slice(0, -1);
-                guessDisplay.textContent = guessInput.value || "クリック入力";
+                guessDisplay.textContent = guessInput.value || getDefaultDisplayText();
             }
         };
 
         window.clearInput = function () {
             guessInput.value = "";
             indexInput.value = "";
-            guessDisplay.textContent = "クリック入力";
+            guessDisplay.textContent = getDefaultDisplayText();
         };
     });
 </script>
