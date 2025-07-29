@@ -10,14 +10,41 @@
     .deck-click:hover {
         background-color: rgba(0, 0, 0, 0.5) !important; /* ← 薄いグレー */
     }
+
+    .selectnum-container {
+        margin-top: 30vh; /* スタート画面の中央に配置 */
+        font-family: 'Cinzel', serif !important;
+        border-radius: 20px;
+        padding: 2vh 1vw;
+        color : black;
+        background-color: white;
+    }
+
+    .deck-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 1.2vw;
+        justify-items: center;
+    }
+
+    @media (max-width: 768px) {
+        .selectnum-container {
+            margin-top: 0vh; /* モバイルでは少し上に */
+        }
+
+        .deck-grid {
+            grid-template-columns: repeat(3, 1fr);  /* モバイルでは3列に */
+            gap: 2vw;  /* 少し余裕を広げてもOK */
+        }
+    }
 </style>
 <div class="row justify-content-center">
     <div class="col-md-8 col-lg-6">
 
-        <div class="glass-card text-center" style="margin-top: 30vh; color: black; background-color: white;">
-            <h2 class="text-dark mb-4" style="font-family: 'Cinzel', serif !important;">強化する数字を選んでください</h2>
+        <div class="glass-card text-center selectnum-container">
+            <h2 class="text-dark mb-4">強化する数字を選んでください</h2>
 
-            <p class="text-muted mb-4" style="font-family: 'Cinzel', serif !important;">強化したい数字をデッキからクリックしてください。</p>
+            <p class="text-muted mb-1">強化したい数字をデッキからクリック</p>
 
             <form method="post" id="number-form">
                 {% csrf_token %}
@@ -27,7 +54,7 @@
         </div>
 
         <!-- モーダルを模倣したデッキ背景 -->
-        <div class="d-flex justify-content-center" style="margin-top: 5vh;">
+        <div class="d-flex justify-content-center" style="margin-top: 3vh;">
             <div class="glass-card" style="
                 width: 100%;
                 padding: 2vh 1vw;
@@ -37,12 +64,7 @@
             ">
         
                 <!-- グリッドで5列に強制 -->
-                <div class="deck-grid" style="
-                    display: grid;
-                    grid-template-columns: repeat(5, 1fr);
-                    gap: 1.2vw;
-                    justify-items: center;
-                ">
+                <div class="deck-grid">
                     {% for card in deck_numbers %}
                         <div class="deck-click text-dark text-center p-3 border rounded"
                             data-number="{{ card.number }}"

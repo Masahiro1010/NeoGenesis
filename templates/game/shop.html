@@ -4,12 +4,23 @@
 {% block title %}ショップ画面{% endblock %}
 
 {% block content %}
+<style>
+    .shopcontainer{
+        font-family: 'Cinzel', serif !important;
+        margin-top: 30vh; /* スタート画面の中央に配置 */
+    }
+    @media (max-width: 768px) {
+        .shopcontainer {
+            margin-top: 0vh; /* モバイルでは少し上に */
+        }
+    }
+</style>
 <div class="row justify-content-center">
     <div class="col-md-10 col-lg-8">
         <!-- 強化カード -->
-        <div class="mb-4 text-start" style="margin-top: 30vh;">
-            <h5 class="text-black" style="font-family: 'Cinzel', serif !important;">使用可能な強化カード</h5>
-            <ul class="list-group list-group-flush" style="font-family: 'Cinzel', serif !important;">
+        <div class="mb-4 text-start shopcontainer">
+            <h5 class="text-black">使用可能な強化カード</h5>
+            <ul class="list-group list-group-flush">
                 {% if enhancement_cards %}
                     {% for card in enhancement_cards %}
                     <li class="list-group-item bg-transparent text-dark d-flex justify-content-between align-items-center">

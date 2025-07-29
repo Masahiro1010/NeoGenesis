@@ -4,32 +4,49 @@
 {% block title %}スコア集計 - Ante {{ ante_num }}{% endblock %}
 
 {% block content %}
+<style>
+    .scoresummary {
+        font-family: 'Cinzel', serif !important;
+        background-color: white; /* 半透明の白背景 */
+        border-radius: 15px; /* 角を丸く */
+        padding: 2rem; /* 内側の余白 */
+        margin-top: 30vh;
+    }
+    @media (max-width: 768px) {
+        .scoresummary {
+            margin-top: 0vh; /* モバイルでは少し上に */
+        }
+    }
+</style>
 <div class="row justify-content-center">
     <div class="col-md-10 col-lg-8">
 
-        <div class="glass-card text-center" style="margin-top: 30vh; background-color: white;">
-            <h2 class="text-dark mb-4"style="font-family: 'Cinzel', serif !important;">Ante {{ ante_num }}：スコア集計</h2>
+        <div class="glass-card text-center scoresummary">
+            <h2 class="text-dark mb-4">Ante {{ ante_num }}：スコア集計</h2>
 
             <!-- 結果一覧 -->
-            <div class="text-start mb-4" style="font-family: 'Cinzel', serif !important;">
+            <div class="text-start mb-4">
                 <h5 class="text-black">各予想のスコア</h5>
                 {% if results %}
                     <ul class="list-group list-group-flush">
                         {% for r in results %}
                         <li class="list-group-item bg-transparent text-black">
                             <strong>・{{ r.guess }}</strong> → {{ r.hit }}H {{ r.blow }}B<br>
-                            役点：{{ r.yaku_score }} / カード点：{{ r.card_score }} / 合計スコア：{{ r.total_score }}
+                            役点：{{ r.yaku_score }} / カード点：{{ r.card_score }}
+                            <br class="d-block d-md-none">
+                            <span class="d-none d-md-inline"> / 合計スコア：{{ r.total_score }}</span>
+                            <span class="d-inline d-md-none">合計スコア：{{ r.total_score }}</span>
                         </li>
                         {% endfor %}
                     </ul>
                 {% else %}
-                    <p class="text-muted"style="font-family: 'Cinzel', serif !important;">予想結果が見つかりません。</p>
+                    <p class="text-muted">予想結果が見つかりません。</p>
                 {% endif %}
             </div>
 
             <!-- 合計スコア -->
             <div class="my-4">
-                <h4 class="text-success"style="font-family: 'Cinzel', serif !important;">このアンティーの合計スコア：<strong>{{ total_score }}</strong></h4>
+                <h4 class="text-success">アンティースコア：<strong>{{ total_score }}</strong></h4>
             </div>
 
 

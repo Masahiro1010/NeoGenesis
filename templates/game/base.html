@@ -330,15 +330,13 @@
                 align-items: center;
                 gap: 2vw;
                 padding: 1vh 2vw;
-                margin-left: 60px;              /* ☰ ボタンの横幅＋余白 */
-                margin-top: 1vh;
-                width: calc(100% - 60px);       /* 残りの横幅を使う */
+                margin-top: 8vh;
+                width: calc(100%);       /* 残りの横幅を使う */
                 box-sizing: border-box;
             }
 
             .header-icons > div {
                 flex: 1 1 auto;
-                max-width: 30vw;
                 font-size: 0.95rem;
                 padding: 0.4rem 1vw;
                 border-radius: 10px;
@@ -353,8 +351,7 @@
             #gold-mobile {
                 font-size: 1.1rem;
                 color: black;
-                margin-left: auto;   /* ← 右寄せに */
-                margin-left: 3vw;
+                margin-left: 5vw;
             }
 
             .slot-section {
@@ -422,16 +419,18 @@
             }
 
             .deck-card-box {
-                width: 45%;     /* スマホでは2列に変更 */
+                width: 33%;
+                padding: 0.3rem;
                 margin-bottom: 1rem;
             }
 
             .deck-click .fs-3 {
-                font-size: 1.2rem !important;
+                font-size: 0.8rem !important;
             }
 
-            .deck-click div {
-                font-size: 0.8rem;
+            .deck-click div:last-card {
+                font-size: 0.4rem !important;  /* 効果やシール表記を小さく */
+                line-height: 1.2;
             }
 
             .slot-section {
@@ -513,7 +512,13 @@
 
 {% if gold %}
 <div class="header-icons d-lg-none">
-    <div id="gold-mobile" style = "font-family: 'Cinzel', serif !important;">所持金：{{ gold }}</div>
+    <div id="gold-mobile" style = "font-family: 'Cinzel', serif !important;">所持金：{{ gold }} ドル</div>
+    <div id="deck-icon-mobile">🃏</div>
+    <div id="score-icon-mobile">📘</div>
+</div>
+{% else %}
+<div class="header-icons d-lg-none">
+    <div id="gold-mobile" style = "font-family: 'Cinzel', serif !important;">所持金：0ドル</div>
     <div id="deck-icon-mobile">🃏</div>
     <div id="score-icon-mobile">📘</div>
 </div>

@@ -4,7 +4,25 @@
 {% block title %}パック開封{% endblock %}
 
 {% block content %}
-<div class="container text-center" style="margin-top: 30vh; font-family: 'Cinzel', serif !important;">
+<style>
+    .pack-open-container {
+        margin-top: 30vh; /* スタート画面の中央に配置 */
+        font-family: 'Cinzel', serif !important;
+    }
+    .pack-open-card {
+            width: 15%;               /* 2列用の幅 */
+        }
+    @media (max-width: 768px) {
+        .pack-open-container {
+            margin-top: 0vh; /* モバイルでは少し上に */
+        }
+        .pack-open-card {
+            width: 45%;               /* 2列用の幅 */
+            margin-bottom: 1rem;
+        }
+    }
+</style>
+<div class="container text-center pack-open-container">
     <h2>パックを開封しました！</h2>
     <form method="post">
         {% csrf_token %}
@@ -12,7 +30,7 @@
 
         <div class="d-flex flex-wrap justify-content-center gap-3" id="card-container">
             {% for card in cards %}
-                <label class="border p-3 rounded shadow" style="width: 150px; cursor: pointer;">
+                <label class="border p-3 rounded shadow pack-open-card">
                     <input type="checkbox" class="form-check-input pack-check" name="selected_codes" value="{{ card.code }}">
                     <div>{{ card.name }}</div>
                     <div class="small">{{ card.description }}</div>
@@ -20,7 +38,7 @@
             {% endfor %}
         </div>
 
-        <button type="submit" class="btn btn-primary mt-4">確定</button>
+        <button type="submit" class="btn btn-primary mt-4 mb-3">確定</button>
     </form>
 </div>
 

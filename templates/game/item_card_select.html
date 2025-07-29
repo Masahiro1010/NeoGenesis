@@ -28,13 +28,24 @@
     .selected {
         background-color: rgba(0, 0, 0, 0.5) !important;
     }
+
+    .itemcontainer {
+        margin-top: 30vh;
+        font-family: 'Cinzel', serif !important;
+    }
+
+    @media (max-width: 786px) {
+        .itemcontainer {
+            margin-top: 0vh;
+        }
+    }
 </style>
 
-<div class="container text-center" style="margin-top: 30vh; font-family: 'Cinzel', serif !important;">
+<div class="container text-center itemcontainer">
     <h3>4つのうち2つ選んでください</h3>
     <form method="post">
         {% csrf_token %}
-        <div class="d-flex justify-content-center gap-4 my-4 flex-wrap" style="font-family: 'Cinzel', serif !important;">
+        <div class="d-flex justify-content-center gap-4 my-4 flex-nowrap" style = "overflow-x: auto;">
             {% for i in "0123"|slice:problem_length %}
             <label class="select-box">
                 <input type="checkbox" name="indexes" value="{{ i }}" class="form-check-input d-none" onchange="toggleButton(this)">
@@ -46,7 +57,7 @@
     </form>
 
     {% if revealed_texts %}
-        <div class="mt-5" style="font-family: 'Cinzel', serif !important;">
+        <div class="mt-5">
             <h5>判定結果：</h5>
             <div class="d-flex justify-content-center gap-4 flex-wrap mt-5">
                 {% for text in revealed_texts %}

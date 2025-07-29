@@ -78,17 +78,24 @@
         z-index: 10;
     }
 
+    .glass-card.item-card-box {
+        max-width: 45vw;
+        width: 90%;
+        margin: 5vh auto;
+        font-family: 'Cinzel', serif !important;
+        background-color: white;
+    }
+
     @media (max-width: 768px) {
         .guess-container {
             min-height: 30vh; /* モバイルでは少し高く */
         }
 
         .glass-card-guess {
-            margin-top: 6vh !important;
+            margin: -4vh auto !important;
             padding: 5vw;
             max-width: 95vw;
             width: 95%;
-            min-height: auto;
         }
 
         .guess-display-box {
@@ -103,6 +110,31 @@
             height: auto;
             margin: 2vh auto;
             padding: 1rem;
+        }
+
+        .mobile-flex-row {
+            display: flex;
+            flex-direction: row !important;
+            justify-content: center;
+            align-items: center;
+            gap: 2vw;
+        }
+
+        .mobile-flex-row h2 {
+            font-size: 4vw;
+            white-space: nowrap;
+        }
+
+        .mobile-flex-row #guessDisplay {
+            font-size: 5vw;
+            letter-spacing: 2vw;
+            padding: 0.8rem;
+            flex-shrink: 1;
+        }
+
+        .glass-card.item-card-box {
+            width: 90% !important;
+            max-width: none !important;
         }
     }
 </style>
@@ -122,15 +154,18 @@
             {% csrf_token %}
         
             <div class="glass-card-guess text-center">
-                <h2 class="text-dark mb-3" style="font-size: 3.5vh;">Ante {{ ante_num }}：予想</h2>
-            
-                <!-- 表示欄 -->
-                <div id="guessDisplay" class="guess-display-box mb-3">
-                    クリック入力
+                <!-- モバイルでは横並び、PCでは縦並び -->
+                <div class="d-flex flex-column mobile-flex-row mb-3">
+                    <h2 class="text-dark mb-2 mb-sm-0" style="font-size: 3.5vh;">
+                        Ante {{ ante_num }}：予想
+                    </h2>
+                    <div id="guessDisplay" class="guess-display-box">
+                        クリック入力
+                    </div>
                 </div>
             
-                <!-- ボタン3つ -->
-                <div class="d-flex flex-wrap justify-content-center gap-2 mb-3">
+                <!-- モバイルでも常に横並びにするため flex-nowrap を明示 -->
+                <div class="d-flex flex-nowrap justify-content-center gap-2 mb-3" style="overflow-x: auto;">
                     <button type="button" class="btn custom-btn" onclick="removeLast()">1文字削除</button>
                     <button type="button" class="btn custom-btn" onclick="clearInput()">クリア</button>
                     <button type="submit" class="btn custom-btn">予想する</button>
@@ -144,7 +179,7 @@
 
         <!-- 🔢 選択用デッキ一覧（このページ専用） -->
         <div class="glass-card-deck">
-            <h5 class="text-black text-center mb-4" style="font-family: 'Cinzel', serif !important;">デッキから数字を選んでください</h5>
+            <h5 class="text-black text-center mb-4" style="font-family: 'Cinzel', serif !important;">デッキから数字を選択</h5>
             <div class="row">
                 {% for card in deck_numbers %}
                     <div class="deck-card-box mb-3">
@@ -169,7 +204,7 @@
         <!-- アイテムカード使用 -->
         {% with item_cards=consume_cards %}
         {% if item_cards %}
-        <div class="glass-card" style="max-width: 45vw; width: 90%; margin: 5vh auto; font-family: 'Cinzel', serif !important; background-color: white;">
+        <div class="glass-card item-card-box">
             <h5 class="text-black mb-3">使用可能なアイテムカード</h5>
             <ul class="list-group list-group-flush">
                 {% for card in item_cards %}
@@ -264,6 +299,20 @@
             document.getElementById("timeout-form").submit();
         }
     }, 1000);
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const title = document.getElementById("guessDisplay");
+
+        if (window.matchMedia("(max-width: 768px)").matches) {
+            // スマホ用テキスト
+            title.textContent = "タップ";
+        } else {
+            // PC用テキスト（必要なら）
+            title.textContent = "クリック入力";
+        }
+    });
 </script>
 
 {% endblock %}
