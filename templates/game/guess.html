@@ -6,6 +6,42 @@
 {% block content %}
 
 <style>
+    /* デッキ表示デザイン */
+    .glass-card-deck {
+        background-color: white !important;
+        -webkit-backdrop-filter: blur(15px);
+        backdrop-filter: blur(15px);
+        border-radius: 20px;
+        padding: 2rem;
+        margin: 0 auto;
+        max-width: 45vw;       /* ← 予想欄と一致 */
+        width: 90%;
+        box-shadow: 0 0 40px rgba(255, 255, 255, 0.12);
+        color: #fff;
+        text-align: center;
+        padding: 4vh 3vw;
+        margin-top: -20vh
+    }
+    /* クリック可能なカード要素 */
+    .deck-click {
+        cursor: pointer;
+    }
+    /* デッキ選択画面関連 */
+    .glass-card-deck .deck-click {
+        padding: 1rem 0.5rem;     /* ← 縦横の内側余白を小さく */
+        font-size: 0.9rem;        /* ← 全体の文字サイズをやや小さく */
+        border-radius: 10px;
+    }
+    /* デッキ選択画面関連 */
+    .glass-card-deck .deck-click .fs-3 {
+        font-size: 1.4rem !important;  /* ← 数字部分（元はfs-3＝1.75rem） */
+    }
+    /* デッキ選択画面関連 */
+    .glass-card-deck .deck-click div {
+        font-size: 0.8rem;  /* ← 効果・Sealのテキスト部分 */
+        line-height: 1.3;
+    }
+
     .guess-container {
         position: relative;
         min-height: 60vh; /* 高さを確保 */
@@ -86,6 +122,33 @@
         background-color: white;
     }
 
+    .glass-card-history strong {
+        font-size: 1.15rem;  /* 少しだけ大きくして強調 */
+        color: black;
+    }
+
+    .glass-card-history small {
+        font-size: 0.75rem;  /* 小さめ */
+        color: black;
+        opacity: 0.7;        /* 薄め */
+    }
+
+    .deck-card-box {
+        width: 20%;              /* ← 5列表示 */
+        padding: 0.5rem;
+        box-sizing: border-box;
+    }
+
+    @media(max-width: 1024px){
+        .glass-card-history {
+            position: static;
+            width: 90%;
+            max-width: 100%;
+            height: auto;
+            margin: 0 auto 2vh auto;
+        }
+    }
+
     @media (max-width: 768px) {
         .guess-container {
             min-height: 30vh; /* モバイルでは少し高く */
@@ -135,6 +198,26 @@
         .glass-card.item-card-box {
             width: 90% !important;
             max-width: none !important;
+        }
+
+        .glass-card-deck {
+            max-width: 95vw;
+            margin-top: 5vh;
+            padding: 1rem;
+        }
+        .deck-card-box {
+            width: 33%;
+            padding: 0.3rem;
+            margin-bottom: 1rem;
+        }
+        /* クリック可能なカード要素 */
+        .deck-click .fs-3 {
+            font-size: 0.8rem !important;
+        }
+        /* クリック可能なカード要素 */
+        .deck-click div:last-card {
+            font-size: 0.4rem !important;  /* 効果やシール表記を小さく */
+            line-height: 1.2;
         }
     }
 </style>

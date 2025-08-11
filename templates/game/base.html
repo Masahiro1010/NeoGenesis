@@ -7,17 +7,84 @@
     <title>{% block title %}BHB Game{% endblock %}</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <style>
+        /* スクリプト共通 */
+        /* 全ページに対応される(必要) */
         html, body {
             margin: 0;
             padding: 0;
             height: 100%;
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Cinzel', serif !important;
             overflow-x: hidden;
             background-color: transparent;
             font-size: 1.1rem;
             line-height: 1.6;
         }
+        h1, h2, h3, h4, h5 {
+            color: #111;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.15);
+        }
+        /* <input>のデザイン(必要) */
+        input.form-control {
+            font-size: 1.1rem;
+            padding: 0.75rem;
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid #ccc;
+            color: #111;
+        }
+        input.form-control:focus {
+            outline: none;
+            box-shadow: 0 0 5px rgba(0, 200, 255, 0.5);
+        }
+        /* アイテム消費欄shop.html, guess.html(必要) */
+        .list-group-item {
+            font-size: 1rem;
+            font-weight: 500;
+            padding: 0.5rem 0.8rem;
+            border: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background-color: rgba(255, 255, 255, 0.08);
+            font-family: 'Cinzel', serif !important;
+            color: #111;
+            border-radius: 0.4rem;
+            margin-bottom: 0.4rem;
+        }
+        /* 次へ進むボタン関連score_summary.html, shop.html(必要) */
+        .custom-btn {
+            font-size: 1.8vh;
+            padding: 0.8vh 2vw;
+            white-space: nowrap;
+            border-radius: 1vh;
+        }
+        .custom-next-btn {
+            transition: all 0.3s ease-in-out;
+        }
+        .custom-next-btn:hover {
+            background-color: #fff !important;
+            color: #000 !important;
+            transform: scale(1.05);
+            border: 1px solid #000;
+        }
+        /* 全ボタン対応 */
+        button.btn {
+            font-size: 1.1rem;
+            padding: 0.6rem 1.2rem;
+            font-weight: 600;
+        }
+        .btn-outline-light:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
 
+
+
+        /* メニューボタンの位置(必要) */
+        .menu-button-wrapper {
+            position: fixed;
+            top: 2vh;
+            left: 2vw;
+            z-index: 1000;
+        }
+        /* ドロップダウン全体の装飾(必要) */
         .dropdown-menu.glass-card {
             background-color: rgba(0, 0, 0, 0.5);
             -webkit-backdrop-filter: blur(10px);
@@ -30,19 +97,20 @@
             white-space: normal;
             word-break: break-word;
         }
-
+        /* メニューバー<li>のリセット(必要) */
         .dropdown-menu li {
+            font-family: 'Cinzel', serif !important;
             margin: 0 !important;
             padding: 0 !important;
-            list-style: none;                /* ✅ 余計なインデントや記号除去 */
-            display: block;                  /* ✅ list-item → block に */
+            list-style: none;
+            display: block;
         }
-
+        /* メニューバー各メニュー項目の装飾、form経由のボタン調整(必要) */
         .dropdown-item,
         .dropdown-menu form button {
             font-size: 0.95rem;
             color: #fff;
-            padding: 0.3rem 1rem;            /* ✅ 上下余白コンパクトに */
+            padding: 0.3rem 1rem;
             background-color: transparent !important;
             border: none;
             width: 100%;
@@ -51,11 +119,9 @@
             display: block;
         }
 
-        .dropdown-item:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-        }
 
 
+        /* Three.js などで生成されるアニメーション背景をページの最背面に固定表示するためのもの(必要) */
         canvas {
             position: fixed;
             top: 0;
@@ -63,33 +129,19 @@
             z-index: -1 !important;
         }
 
-        .cube-button {
+
+
+        /* 所持金表示(必要) */
+        #gold-display {
             position: fixed;
-            top: 20px;
-            left: 20px;
-            z-index: 3;
-            width: 60px;
-            height: 60px;
-            background: rgba(150, 150, 150, 0.4);
-            -webkit-backdrop-filter: blur(8px);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 12px;
-            color: white;
-            font-size: 2rem;
-            text-align: center;
-            line-height: 60px;
-            text-decoration: none;
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.15);
-            transition: all 0.2s ease-in-out;
+            top: 20vh;
+            right: 2vw;
+            font-size: 1.3rem;
+            z-index: 1;
+            color: black;
+            font-family: 'Cinzel', serif !important;
         }
-
-        .cube-button:hover {
-            background: rgba(0, 0, 0, 0.5);
-            transform: scale(1.1);
-        }
-
-        /* 共通スタイル */
+        /* 共通スタイル(必要) */
         #deck-icon, #score-icon {
             white-space: nowrap;           /* ← 折り返し禁止 */
             overflow: hidden;
@@ -115,24 +167,23 @@
             text-align: center;
             z-index: 10;
         }
-
-        /* 📘 役点表ボタン（所持金の下） */
+        /* 📘 役点表ボタン（所持金の下）(必要) */
         #score-icon {
             top: calc(20vh + 7vh);    /* = 28vh */
         }
-
-        /* 🃏 デッキ表示ボタン（さらに下） */
+        /* 🃏 デッキ表示ボタン（さらに下）(必要) */
         #deck-icon {
             top: calc(20vh + 44vh);   /* = 36vh */
         }
-
+        /* アイコンホバー(必要」) */
         #deck-icon:hover,
         #score-icon:hover {
             background: rgba(0, 0, 0, 0.5) !important;
             transform: scale(1.1);
         }
 
-        /* 共通の hover スタイル（色変更） */
+
+        /* 強制的にhover風の演出を与える場合に使用 */
         .deck-click.modal-icon-hover {
             background-color: rgba(0, 0, 0, 0.5) !important;
             transform: scale(1.1);
@@ -140,58 +191,23 @@
             transition: all 0.2s ease-in-out;
         }
 
-        #gold-display {
-            position: fixed;
-            top: 20vh;
-            right: 2vw;
-            font-size: 1.3rem;
-            z-index: 1;
-            color: black;
-        }
 
-        .custom-btn {
-            font-size: 1.8vh;
-            padding: 0.8vh 2vw;
-            white-space: nowrap;
-            border-radius: 1vh;
-        }
 
-        .glass-card-deck {
-            background-color: white !important;
-            -webkit-backdrop-filter: blur(15px);
-            backdrop-filter: blur(15px);
-            border-radius: 20px;
-            padding: 2rem;
-            margin: 0 auto;
-            max-width: 45vw;       /* ← 予想欄と一致 */
-            width: 90%;
-            box-shadow: 0 0 40px rgba(255, 255, 255, 0.12);
-            color: #fff;
-            text-align: center;
-            padding: 4vh 3vw;
-            margin-top: -20vh
-        }
-
-        h1, h2, h3, h4, h5 {
-            color: #111;
-            text-shadow: 0 0 8px rgba(255, 255, 255, 0.15);
-        }
-
+        /* 効果: スロット全体の固定表示、中央寄せ、背景透過など(必要) */
         .slot-section {
-            position: fixed;           /* ← スクロールに追従しないように固定 */
-            top: 1vh;                 /* ← 位置を調整（必要に応じて変更） */
+            position: fixed;           
+            top: 1vh;                 
             left: 50%;
-            transform: translateX(-60%); /* ← 横中央寄せ */
+            transform: translateX(-60%); 
             z-index: 900;
-            width: 80vw;               /* 幅は好みに応じて */
+            width: 80vw;               
             max-width: 1000px;
-            background-color: rgba(255,255,255,0.05); /* オプション：背景色つけて視認性アップ */
+            background-color: rgba(255,255,255,0.05); 
             padding: 2vh 2vw;
             border-radius: 2vh;
             box-shadow: 0 0 3vh rgba(255, 255, 255, 0.1);
         }
-
-        /* レスポンシブ対策：スロット崩れを防止 */
+        /* 効果: スロット枠の装飾（白背景＋ラウンド角＋文字サイズ）(必要) */
         .slot-box {
             background-color: white !important; /* ✅ 白背景 */
             z-index: 1;
@@ -205,104 +221,23 @@
             color: #111;
             margin: 1rem;
         }
-
+        /* スロットタイトルの見た目（フォント、太さ、色）(必要) */
         .slot-box h5 {
             font-family: 'Cinzel', serif !important;
             font-weight: 900 !important;
             color: #000 !important;
         }
-
+        /* 効果: 改行防止、フォント指定、サイズ調整(必要) */
         .slot-box ul li {
             font-family: 'Cinzel', serif !important;
             font-size: 0.90rem; /* もともと大きめなら 0.9rem に */
             white-space: nowrap; /* ← 改行を防ぐ！ */
         }
 
-        .list-group-item {
-            font-size: 1rem;
-            font-weight: 500;
-            padding: 0.5rem 0.8rem;
-            border: none;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            background-color: rgba(255, 255, 255, 0.08);
-            font-family: 'Cinzel', serif !important;
-            color: #111;
-            border-radius: 0.4rem;
-            margin-bottom: 0.4rem;
-        }
 
-        .glass-card-history strong {
-            font-size: 1.15rem;  /* 少しだけ大きくして強調 */
-            color: black;
-        }
-
-        .glass-card-history small {
-            font-size: 0.75rem;  /* 小さめ */
-            color: black;
-            opacity: 0.7;        /* 薄め */
-        }
-
-        input.form-control {
-            font-size: 1.1rem;
-            padding: 0.75rem;
-            background-color: rgba(255, 255, 255, 0.05);
-            border: 1px solid #ccc;
-            color: #111;
-        }
-
-        input.form-control:focus {
-            outline: none;
-            box-shadow: 0 0 5px rgba(0, 200, 255, 0.5);
-        }
-
-        button.btn {
-            font-size: 1.1rem;
-            padding: 0.6rem 1.2rem;
-            font-weight: 600;
-        }
-
-        .btn-outline-light:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-            color: #fff;
-        }
-
-        .deck-click {
-            cursor: pointer;
-        }
-
-        .glass-card-deck .deck-click {
-            padding: 1rem 0.5rem;     /* ← 縦横の内側余白を小さく */
-            font-size: 0.9rem;        /* ← 全体の文字サイズをやや小さく */
-            border-radius: 10px;
-        }
-
-        .glass-card-deck .deck-click .fs-3 {
-            font-size: 1.4rem !important;  /* ← 数字部分（元はfs-3＝1.75rem） */
-        }
-
-        .glass-card-deck .deck-click div {
-            font-size: 0.8rem;  /* ← 効果・Sealのテキスト部分 */
-            line-height: 1.3;
-        }
-
-        .deck-card-box {
-            width: 20%;              /* ← 5列表示 */
-            padding: 0.5rem;
-            box-sizing: border-box;
-        }
-
-        .custom-next-btn {
-            transition: all 0.3s ease-in-out;
-        }
-
-        .custom-next-btn:hover {
-            background-color: #fff !important;
-            color: #000 !important;
-            transform: scale(1.05);
-            border: 1px solid #000;
-        }
 
         @media (hover: hover) and (pointer: fine) {
+            /* PCでのhover時にスケーリング＋背景変更＋影追加 */
             .deck-click:hover {
                 background-color: rgba(0, 0, 0, 0.5);
                 transform: scale(1.1);
@@ -311,28 +246,26 @@
             }
         }
 
+
+
         @media (max-width: 1024px) {
-            /* 元の右側表示は非表示 */
+            /* 元のPC表示は非表示 */
             #gold-display,
             #deck-icon,
             #score-icon {
                 display: none !important;
             }
-
-            #deck-icon-mobile:hover,
-            #score-icon-mobile:hover {
-                background-color: rgba(100, 100, 100, 0.5) !important;
-            }
-
+            /* モバイル用所持金、アイコン */
             .header-icons {
                 display: flex;
-                justify-content: start;          /* 左寄せで ☰ の右に続ける */
+                justify-content: space-between;  /* 中央寄せ */
                 align-items: center;
                 gap: 2vw;
                 padding: 1vh 2vw;
                 margin-top: 8vh;
-                width: calc(100%);       /* 残りの横幅を使う */
+                width: 100%;
                 box-sizing: border-box;
+                gap: 5%;
             }
 
             .header-icons > div {
@@ -348,21 +281,38 @@
                 white-space: nowrap;
             }
 
+            /* モバイル所持金 */
             #gold-mobile {
+                flex: 0 0 40%;
                 font-size: 1.1rem;
                 color: black;
-                margin-left: 5vw;
+                margin-left: 1vw;  /* 変更: 左の余白なし */
+                font-weight: 700;
+                text-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
             }
 
+            /* 役点モーダルアイコン */
+            #score-icon-mobile {
+                flex: 0 0 20%;       /* 幅20%固定 */
+                text-align: center;
+            }
+
+            /* デッキモーダルアイコン */
+            #deck-icon-mobile {
+                flex: 0 0 20%;       /* 幅20%固定 */
+                text-align: center;
+            }
+
+            /* アイコンホバー */
+            #deck-icon-mobile:hover,
+            #score-icon-mobile:hover {
+                background-color: rgba(100, 100, 100, 0.5) !important;
+            }
+
+            /* スロット全体 */
             .slot-section {
                 margin: 4vh 0;
                 padding: 0 1rem;
-            }
-
-            .row.g-4 {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
             }
 
             .slot-box {
@@ -388,58 +338,23 @@
                 word-break: break-word;
             }
 
-            .glass-card-history {
-                position: static;
-                width: 90%;
-                max-width: 100%;
-                height: auto;
-                margin: 0 auto 2vh auto;
+            /* モバイルのレイアウト調整 */
+            .row.g-4 {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
             }
         }
 
         @media (max-width: 768px) {
-            .ante-start-box {
-                margin-top: 5vh !important;  /* ← 40vh → 20vh に軽減 */
-            }
-
-            html, body {
-                font-size: 1rem;
-                overflow-x: hidden;
-            }
-
-            .custom-btn {
-                font-size: 1rem;
-                padding: 0.5rem 1rem;
-            }
-
-            .glass-card-deck {
-                max-width: 95vw;
-                margin-top: 5vh;
-                padding: 1rem;
-            }
-
-            .deck-card-box {
-                width: 33%;
-                padding: 0.3rem;
-                margin-bottom: 1rem;
-            }
-
-            .deck-click .fs-3 {
-                font-size: 0.8rem !important;
-            }
-
-            .deck-click div:last-card {
-                font-size: 0.4rem !important;  /* 効果やシール表記を小さく */
-                line-height: 1.2;
-            }
-
+            /* スロット全体 */
             .slot-section {
-                position: static !important;  /* ← 固定解除 */
+                position: static !important;
                 width: 95%;
                 margin: 2vh auto;
                 padding: 1rem;
                 z-index: auto;
-                transform: none !important;  /* ← 中央寄せのtranslateも無効化 */
+                transform: none !important;
                 top: auto !important;
                 left: auto !important;
             }
@@ -450,6 +365,7 @@
                 padding: 0.7rem 1rem;
                 margin: 1rem 0;
             }
+
             .slot-box h5 {
                 font-size: 1rem !important;
             }
@@ -460,6 +376,7 @@
                 word-break: break-word;
             }
 
+            /* モーダルのサイズ調整 */
             .modal-dialog.modal-xl {
                 max-width: 95vw;
                 margin: 1rem auto;
@@ -471,12 +388,13 @@
                 justify-content: center;
             }
 
+            /* ヘッダーアイコン調整 */
             .header-icons > div {
                 height: 60px;
                 line-height: 60px;
                 max-width: 40vw;
                 font-size: 0.9rem;
-                padding: 0.5rem 1vw;
+                padding: 0.4rem 1vw;
             }
         }
     </style>
@@ -486,13 +404,13 @@
 <canvas id="bg"></canvas>
 
 <!--メニューバー-->
-<div class="dropdown" style="position: fixed; top: 20px; left: 20px; z-index: 9999;">
+<div class="dropdown menu-button-wrapper">
     <button class="btn btn-outline-light dropdown-toggle text-black bg-light"
             type="button" id="menuButton" data-bs-toggle="dropdown" aria-expanded="false">
         ☰
     </button>
 
-    <ul class="dropdown-menu dropdown-menu-end glass-card" style="font-family: 'Cinzel', serif !important;" aria-labelledby="menuButton">
+    <ul class="dropdown-menu dropdown-menu-end glass-card" aria-labelledby="menuButton">
         <!--
         <li>
             <a class="dropdown-item" href="{% url 'game_start' %}">タイトルに戻る</a>
@@ -528,6 +446,7 @@
 <div id="score-icon" title="役の点数表" style="background-color: rgba(0, 0, 0, 0);">役の点数表</div>
 <div id="deck-icon" title="デッキを表示">自分のデッキ</div>
 
+<!--BGM設定-->
 <audio id="bgm" autoplay loop>
     <source src="{% static 'audio/mainBGM.mp3' %}" type="audio/mp3">
     Your browser does not support the audio element.
@@ -617,7 +536,7 @@
 <!-- デッキモーダル -->
 <div class="modal fade" id="deckModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered">
-        <div class="modal-content glass-card" style="max-height: 90vh; overflow-y: auto;">
+        <div class="modal-content" style="max-height: 90vh; overflow-y: auto;">
             <div class="modal-header">
                 <h5 class="modal-title text-dark" style="font-family: 'Cinzel', serif !important;">デッキ全体</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
@@ -648,7 +567,7 @@
 <!-- 役の点数表モーダル（2列ペア） -->
 <div class="modal fade" id="scoreModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-md modal-dialog-centered">
-        <div class="modal-content glass-card">
+        <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title text-dark" style = "font-family: 'Cinzel', serif !important;">役の点数表</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
